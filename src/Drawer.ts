@@ -1,20 +1,20 @@
 import { debounceTime, filter, startWith, Subject } from 'rxjs';
-import { ImpossibleOperationError, UnknowElementError } from './errors';
+import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from './domain';
 import { Router } from './router';
 import { FORBIDDEN_FUNCTIONS_NAMES } from './utils/constants';
 import { isADivisibleNumber, isANumber } from './utils/numbers';
 
 export class Drawer {
     private readonly context: CanvasRenderingContext2D;
-    private readonly canvasHeight: number;
-    private readonly canvasWidth: number;
+    private readonly canvasHeight: PixelValue;
+    private readonly canvasWidth: PixelValue;
     private ratio = {
         unit: 1,
         pixelsPeerUnits: 100
     };
     private center = {
-        x: 0,
-        y: 0
+        x: new UnitValue(0),
+        y: new UnitValue(0)
     }
 
     constructor(router: Router, window: Window) {
@@ -28,8 +28,10 @@ export class Drawer {
             throw new UnknowElementError();
         }
         this.context = context;
-        this.canvasHeight = canvas.height = canvas.offsetHeight;
-        this.canvasWidth = canvas.width = canvas.offsetWidth;
+        const canvasHeight = canvas.height = canvas.offsetHeight;
+        this.canvasHeight = new PixelValue(canvasHeight);
+        const canvasWidth = canvas.width = canvas.offsetWidth;
+        this.canvasWidth = new PixelValue(canvasWidth);
 
         const drawingOrder$ = new Subject<void>();
         drawingOrder$.pipe(startWith(void 0), debounceTime(0)).subscribe(() => {
@@ -91,68 +93,62 @@ export class Drawer {
             });
         });
 
-        canvas.addEventListener('wheel', () => {
-            this.ratio = this.ratio;
-            router.navigate({
-                ratio: btoa(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
-            });
-        });
+        // canvas.addEventListener('wheel', () => {
+        //     this.ratio = this.ratio;
+        //     router.navigate({
+        //         ratio: btoa(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
+        //     });
+        // });
+        // let originalMousePosition: { offsetX: number, offsetY: number } | undefined = undefined;
 
-        let originalMousePosition: { offsetX: number; offsetY: number } | undefined = undefined;
+        // canvas.addEventListener('mousedown', ({ offsetX, offsetY }) => {
+        //     originalMousePosition = { offsetX, offsetY };
+        //     canvas.style.cursor = "grabbing";
+        // });
 
-        canvas.addEventListener('mousedown', (event) => {
-            originalMousePosition = { offsetX: event.offsetX, offsetY: event.offsetY };
-            canvas.style.cursor = "grabbing";
-        });
+        // canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
+        //     if (!!originalMousePosition) {
+        //         const differenceX = offsetX - originalMousePosition.offsetX;
+        //         const differenceY = offsetY - originalMousePosition.offsetY;
 
-        canvas.addEventListener('mousemove', (event) => {
-            if (!!originalMousePosition) {
-                const offsetX = event.offsetX;
-                const offsetY = event.offsetY;
+        //         this.context.fillRect(offsetX, offsetY, 2, 2);
 
-                const differenceX = offsetX - originalMousePosition.offsetX;
-                const differenceY = offsetY - originalMousePosition.offsetY;
+        //         const newOffsetX = originalMousePosition.offsetX + -1 * differenceX;
+        //         const newOffsetY = originalMousePosition.offsetY + -1 * differenceY;
 
-                this.context.fillRect(offsetX, offsetY, 2, 2);
+        //         originalMousePosition = { offsetX, offsetY };
 
-                const newOffsetX = originalMousePosition.offsetX + -1 * differenceX;
-                const newOffsetY = originalMousePosition.offsetY + -1 * differenceY;
+        //         this.context.fillRect(newOffsetX, newOffsetY, 2, 2);
 
-                this.context.fillRect(newOffsetX, newOffsetY, 2, 2);
+        //         // const newX = newOffsetX / this.ratio.pixelsPeerUnits;
+        //         // const newY = newOffsetY / this.ratio.pixelsPeerUnits;
 
-                // const movementX = event.x - event.offsetX;
-                // console.log(movementX);
+        //         console.clear();
+        //         console.log("Souris : ", this.convertOffsetXToX(offsetX));
+        //         console.log("Attendu : ", this.convertOffsetXToX(newOffsetX));
 
+        //         this.center = {
+        //             x: this.convertOffsetXToX(offsetX),
+        //             y: this.center.y
+        //         };
 
-                const newX = newOffsetX / this.ratio.pixelsPeerUnits;
-                const newY = newOffsetY / this.ratio.pixelsPeerUnits;
+        //         router.navigate({
+        //             center: btoa(`${this.center.x}/${this.center.y}`)
+        //         });
+        //     }
+        // });
 
-                console.log(offsetX);
-                console.log(offsetY);
-
-
-                // this.center = {
-                //     x: newX,
-                //     y: this.center.y
-                // };
-
-                // router.navigate({
-                //     center: btoa(`${this.center.x}/${this.center.y}`)
-                // });
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            originalMousePosition = undefined;
-            canvas.style.cursor = "grab";
-        });
+        // canvas.addEventListener('mouseup', () => {
+        //     originalMousePosition = undefined;
+        //     canvas.style.cursor = "grab";
+        // });
     }
 
     private draw() {
-        const minX = this.center.x - this.canvasWidth / 2;
-        const minY = this.center.y - this.canvasHeight / 2;
-        const maxX = this.center.x + this.canvasWidth / 2;
-        const maxY = this.center.y + this.canvasHeight / 2;
+        // const minX = this.center.x - this.canvasWidth / 2;
+        // const minY = this.center.y - this.canvasHeight / 2;
+        // const maxX = this.center.x + this.canvasWidth / 2;
+        // const maxY = this.center.y + this.canvasHeight / 2;
 
         // console.log('ratio : ', this.ratio);
         // console.log('center : ', this.center);
@@ -161,44 +157,36 @@ export class Drawer {
         // console.log("minY : ", minY);
         // console.log("maxY : ", maxY);
 
-        this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        // this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-        if (minX < 0 && maxX > 0) {
-            this.context.beginPath();
-            this.context.strokeStyle = 'red';
-            this.context.lineWidth = 1;
-            let x: number;
-            if (this.center.x >= 0) {
-                x = this.center.x;
-            } else {
-                x = -this.center.x;
-            }
-            this.context.moveTo(this.getCanvasX(x), 0);
-            this.context.lineTo(this.getCanvasX(x), this.canvasHeight);
-            this.context.stroke();
-        }
+        // if (minX < 0 && maxX > 0) {
+        //     this.context.beginPath();
+        //     this.context.strokeStyle = 'red';
+        //     this.context.lineWidth = 1;
+        //     let x: number;
+        //     if (this.center.x >= 0) {
+        //         x = this.center.x;
+        //     } else {
+        //         x = -this.center.x;
+        //     }
+        //     this.context.moveTo(convertXToOffsetX(x, this.canvasWidth), 0);
+        //     this.context.lineTo(convertXToOffsetX(x, this.canvasWidth), this.canvasHeight);
+        //     this.context.stroke();
+        // }
 
-        if (minY < 0 && maxY > 0) {
-            this.context.beginPath();
-            this.context.strokeStyle = 'grey';
-            this.context.lineWidth = 1;
-            let y: number;
-            if (this.center.y >= 0) {
-                y = this.center.y;
-            } else {
-                y = -this.center.y;
-            }
-            this.context.moveTo(0, this.getCanvasY(y));
-            this.context.lineTo(this.canvasWidth, this.getCanvasY(y));
-            this.context.stroke();
-        }
-    }
-
-    private getCanvasX(x: number) {
-        return x + (this.canvasWidth / 2) + (x * this.ratio.pixelsPeerUnits);
-    }
-
-    private getCanvasY(y: number) {
-        return y + (this.canvasHeight / 2) - (y * this.ratio.pixelsPeerUnits);
+        // if (minY < 0 && maxY > 0) {
+        //     this.context.beginPath();
+        //     this.context.strokeStyle = 'grey';
+        //     this.context.lineWidth = 1;
+        //     let y: number;
+        //     if (this.center.y >= 0) {
+        //         y = this.center.y;
+        //     } else {
+        //         y = -this.center.y;
+        //     }
+        //     this.context.moveTo(0, convertYToOffsetY(y, this.canvasHeight, this.ratio.pixelsPeerUnits));
+        //     this.context.lineTo(this.canvasWidth, convertYToOffsetY(y, this.canvasHeight, this.ratio.pixelsPeerUnits));
+        //     this.context.stroke();
+        // }
     }
 }

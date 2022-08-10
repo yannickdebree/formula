@@ -1,5 +1,5 @@
 import { first, map } from 'rxjs';
-import { UnknowElementError } from './errors';
+import { UnknowElementError } from './domain';
 import { QueryParams, Router } from './router';
 import { FORBIDDEN_FUNCTIONS_NAMES } from './utils/constants';
 
