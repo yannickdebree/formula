@@ -50,6 +50,7 @@ form div textarea {
 canvas {
     background-color: #fafafa;
     width: 100%;
+    cursor: grab;
 }
 
 .loading {

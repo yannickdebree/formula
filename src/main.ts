@@ -1,7 +1,7 @@
 import { Drawer } from './Drawer';
 import { Router } from './router';
-import { View } from './View';
+import { Writer } from './Writer';
 
 const router = new Router(window);
 new Drawer(router, window);
-new View(router, window);
+new Writer(router, window);

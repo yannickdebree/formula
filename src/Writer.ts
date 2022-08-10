@@ -3,7 +3,7 @@ import { UnknowElementError } from './errors';
 import { QueryParams, Router } from './router';
 import { FORBIDDEN_FUNCTIONS_NAMES } from './utils/constants';
 
-export class View {
+export class Writer {
     private readonly document: Document;
     private readonly form: HTMLFormElement;
     private textareas = new Array<HTMLTextAreaElement>();
