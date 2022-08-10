@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^3.0.5"
+  },
+  "dependencies": {
+    "rxjs": "^7.5.6"
+  }
+}
