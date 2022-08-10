@@ -17,9 +17,9 @@ export class Router {
     }
 
     navigate(queryParams: QueryParams) {
-        const url = new URL(this.window.location.host);
+        const url = new URL(this.window.location.href);
         Object.keys(queryParams).forEach((key) => {
-            url.searchParams.append(key, queryParams[key]);
+            url.searchParams.set(key, queryParams[key]);
         })
         this.window.history.pushState(null, 'Free Mathematic Formula Drawer', url.search)
         this.queryParams$.next(queryParams);

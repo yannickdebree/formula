@@ -1,1 +1,1 @@
-export const FORBIDDEN_FUNCTIONS_NAMES = ['ratio']
+export const FORBIDDEN_FUNCTIONS_NAMES = ['ratio', 'center']

@@ -1,7 +1,11 @@
-function isANumber(n: number) {
-    return Number.isInteger(n) && !Number.isNaN(n);
+export function isANumber(n: number) {
+    return !Number.isNaN(n);
+}
+
+export function isAnInteger(n: number) {
+    return isANumber(n) && Number.isInteger(n);
 }
 
 export function isADivisibleNumber(n: number) {
-    return isANumber(n) && n !== 0;
+    return isAnInteger(n) && n !== 0;
 }
