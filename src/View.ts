@@ -1,6 +1,7 @@
 import { first, map } from 'rxjs';
-import { UnknowElementError } from './domain';
+import { UnknowElementError } from './errors';
 import { QueryParams, Router } from './router';
+import { FORBIDDEN_FUNCTIONS_NAMES } from './utils/constants';
 
 export class View {
     private readonly document: Document;
@@ -20,7 +21,7 @@ export class View {
 
         router.queryParams$.pipe(
             first(),
-            map(queryParams => Object.keys(queryParams).filter(key => !['zoom'].includes(key)).reduce((acc, key) => ({ ...acc, ...{ [key]: atob(queryParams[key]) } }), {})),
+            map(queryParams => Object.keys(queryParams).filter(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)).reduce((acc, key) => ({ ...acc, ...{ [key]: atob(queryParams[key]) } }), {})),
             map(queryParams => Object.keys(queryParams).length > 0 ? queryParams : { f: '' }),
         ).subscribe((queryParams) => {
             Object.keys(queryParams).forEach(key => {
