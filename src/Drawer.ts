@@ -37,15 +37,15 @@ export class Drawer {
         this.loading = loading;
 
 
-        router.events.subscribe(options => {
-            const zoom = +options['zoom'];
+        router.queryParams$.subscribe(queryParams => {
+            const zoom = +queryParams['zoom'];
             if (!!zoom) {
                 this.setPixelsPeerUnits(zoom);
             } else {
                 this.setPixelsPeerUnits(100);
             }
-            delete options["zoom"];
-            this.drawAllFormula(options);
+            delete queryParams["zoom"];
+            this.drawAllFormula(queryParams);
         });
 
         canvas.addEventListener('wheel', ({ deltaX, deltaY }) => {

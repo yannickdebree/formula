@@ -18,7 +18,7 @@ export class View {
         }
         this.form = form;
 
-        router.events.pipe(
+        router.queryParams$.pipe(
             first(),
             map(queryParams => Object.keys(queryParams).filter(key => !['zoom'].includes(key)).reduce((acc, key) => ({ ...acc, ...{ [key]: atob(queryParams[key]) } }), {})),
             map(queryParams => Object.keys(queryParams).length > 0 ? queryParams : { f: '' }),
