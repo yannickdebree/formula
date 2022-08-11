@@ -1,7 +1,5 @@
-import { Drawer } from './Drawer';
-import { Encoder } from './Encoder';
-import { Router } from './router';
-import { Writer } from './Writer';
+import { Encoder, Router } from './core';
+import { Drawer, Writer } from './views';
 
 const encoder = new Encoder();
 const router = new Router(window);
