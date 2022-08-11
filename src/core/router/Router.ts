@@ -1,12 +1,19 @@
 import { ReplaySubject } from "rxjs";
+import { ContainerInstance, Service } from "typedi";
 import { QueryParams } from './QueryParams';
 
+@Service()
 export class Router {
+    private readonly window: Window;
     public readonly queryParams$ = new ReplaySubject<QueryParams>(1);
 
-    constructor(private readonly window: Window) {
-        const urlSearchParamsEntries = new URLSearchParams(window.location.search).entries();
+    constructor(
+        container: ContainerInstance
+    ) {
+        this.window = container.get(Window);
+        const urlSearchParamsEntries = new URLSearchParams(this.window.location?.search || '').entries();
         let yieldResult = urlSearchParamsEntries.next();
+
         const result: [string, string][] = []
         while (!yieldResult.done) {
             result.push(yieldResult.value)

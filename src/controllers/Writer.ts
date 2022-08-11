@@ -1,28 +1,39 @@
 import { first, map } from 'rxjs';
-import { Encoder, QueryParams, Router } from '../core';
+import { ContainerInstance, Service } from 'typedi';
+import { Encoder, OnInit, QueryParams, Router } from '../core';
 import { UnknowElementError } from '../domain';
 import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils';
 
-export class Writer {
+@Service()
+export class Writer implements OnInit {
+    private readonly router: Router;
+    private readonly encoder: Encoder;
     private readonly document: Document;
     private readonly form: HTMLFormElement;
     private textareas = new Array<HTMLTextAreaElement>();
 
     constructor(
-        router: Router,
-        window: Window,
-        encoder: Encoder
+        container: ContainerInstance
     ) {
+        this.router = container.get(Router);
+        this.encoder = container.get(Encoder);
+        const window = container.get(Window);
+
         this.document = window.document;
         const form = this.document.querySelector('form');
         if (!form) {
             throw new UnknowElementError()
         }
         this.form = form;
+    }
 
-        router.queryParams$.pipe(
+    onInit() {
+        this.router.queryParams$.pipe(
             first(),
-            map(queryParams => Object.keys(queryParams).filter(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)).reduce((acc, key) => ({ ...acc, ...{ [key]: encoder.decode(queryParams[key]) } }), {})),
+            map(queryParams => Object.keys(queryParams)
+                .filter(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key))
+                .reduce((acc, key) => ({ ...acc, ...{ [key]: this.encoder.decode(queryParams[key]) } }), {})
+            ),
             map(queryParams => Object.keys(queryParams).length > 0 ? queryParams : { f: '' }),
         ).subscribe((queryParams) => {
             Object.keys(queryParams).forEach(key => {
@@ -34,9 +45,9 @@ export class Writer {
             event.preventDefault();
             const queryParams = this.textareas
                 .sort((inputA, inputB) => inputA.name.localeCompare(inputB.name))
-                .map(input => ({ [input.name]: encoder.encode(input.value) }))
+                .map(input => ({ [input.name]: this.encoder.encode(input.value) }))
                 .reduce((acc, input) => ({ ...acc, ...input }), {});
-            router.navigate(queryParams);
+            this.router.navigate(queryParams);
         });
     }
 

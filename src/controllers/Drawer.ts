@@ -1,9 +1,14 @@
 import { debounceTime, filter, startWith, Subject } from 'rxjs';
-import { Encoder, Router } from '../core';
+import { ContainerInstance, Service } from 'typedi';
+import { Encoder, OnInit, Router } from '../core';
 import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from '../domain';
 import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, isADivisibleNumber, isANumber } from '../utils';
 
-export class Drawer {
+@Service()
+export class Drawer implements OnInit {
+    private readonly router: Router;
+    private readonly encoder: Encoder;
+    private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly canvasHeight: PixelValue;
     private readonly canvasWidth: PixelValue;
@@ -16,11 +21,18 @@ export class Drawer {
         y: new UnitValue(0)
     }
 
-    constructor(router: Router, window: Window, encoder: Encoder) {
+    constructor(
+        container: ContainerInstance
+    ) {
+        this.router = container.get(Router);
+        this.encoder = container.get(Encoder);
+        const window = container.get(Window);
+
         const canvas = window.document.querySelector('canvas');
         if (!canvas) {
             throw new UnknowElementError();
         }
+        this.canvas = canvas;
 
         const context = canvas.getContext("2d");
         if (!context) {
@@ -31,13 +43,15 @@ export class Drawer {
         this.canvasHeight = new PixelValue(canvasHeight);
         const canvasWidth = canvas.width = canvas.offsetWidth;
         this.canvasWidth = new PixelValue(canvasWidth);
+    }
 
+    onInit() {
         const drawingOrder$ = new Subject<void>();
         drawingOrder$.pipe(startWith(void 0), debounceTime(0)).subscribe(() => {
             this.draw();
         });
 
-        const queryParams$ = router.queryParams$;
+        const queryParams$ = this.router.queryParams$;
 
         queryParams$.pipe(
             filter(queryParams => !!Object.keys(queryParams).find(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)))
@@ -51,7 +65,7 @@ export class Drawer {
             FORBIDDEN_FUNCTIONS_NAMES.forEach(key => {
                 const value = queryParams[key]
                 if (key === "ratio" && !!value) {
-                    const [numerator, denominator] = encoder.decode(value).split('/');
+                    const [numerator, denominator] = this.encoder.decode(value).split('/');
 
                     const unit = +numerator;
                     if (!isADivisibleNumber(unit)) {
@@ -71,7 +85,7 @@ export class Drawer {
                 }
 
                 if (key === "center" && !!value) {
-                    const [newX, newY] = encoder.decode(value).split('/');
+                    const [newX, newY] = this.encoder.decode(value).split('/');
 
                     const x = parseFloat(newX);
                     if (!isANumber(x)) {
@@ -92,7 +106,7 @@ export class Drawer {
             });
         });
 
-        canvas.addEventListener('wheel', (event) => {
+        this.canvas.addEventListener('wheel', (event) => {
             const isAZoomInAction = (event as any).wheelDeltaY > 0;
 
             const increment = 5;
@@ -102,8 +116,8 @@ export class Drawer {
                 this.ratio.pixelsPeerUnits -= increment;
             }
 
-            router.navigate({
-                ratio: btoa(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
+            this.router.navigate({
+                ratio: this.encoder.encode(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
             });
         });
 
@@ -150,7 +164,7 @@ export class Drawer {
         // canvas.addEventListener('mouseup', () => {
         //     originalMousePosition = undefined;
         //     canvas.style.cursor = "grab";
-        // });
+        // });   
     }
 
     private draw() {
