@@ -1,5 +1,6 @@
 import { first, map } from 'rxjs';
 import { UnknowElementError } from './domain';
+import { Encoder } from './Encoder';
 import { QueryParams, Router } from './router';
 import { FORBIDDEN_FUNCTIONS_NAMES } from './utils/constants';
 
@@ -10,7 +11,8 @@ export class Writer {
 
     constructor(
         router: Router,
-        window: Window
+        window: Window,
+        encoder: Encoder
     ) {
         this.document = window.document;
         const form = this.document.querySelector('form');
@@ -21,7 +23,7 @@ export class Writer {
 
         router.queryParams$.pipe(
             first(),
-            map(queryParams => Object.keys(queryParams).filter(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)).reduce((acc, key) => ({ ...acc, ...{ [key]: atob(queryParams[key]) } }), {})),
+            map(queryParams => Object.keys(queryParams).filter(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)).reduce((acc, key) => ({ ...acc, ...{ [key]: encoder.decode(queryParams[key]) } }), {})),
             map(queryParams => Object.keys(queryParams).length > 0 ? queryParams : { f: '' }),
         ).subscribe((queryParams) => {
             Object.keys(queryParams).forEach(key => {
@@ -33,7 +35,7 @@ export class Writer {
             event.preventDefault();
             const queryParams = this.textareas
                 .sort((inputA, inputB) => inputA.name.localeCompare(inputB.name))
-                .map(input => ({ [input.name]: btoa(input.value) }))
+                .map(input => ({ [input.name]: encoder.encode(input.value) }))
                 .reduce((acc, input) => ({ ...acc, ...input }), {});
             router.navigate(queryParams);
         });

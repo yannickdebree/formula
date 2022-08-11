@@ -38,7 +38,9 @@ describe(convertOffsetXToX.name, () => {
                         expect(convertOffsetXToX(offsetX, containerWidth, pixelsPeerUnit).value).toBe(result.value);
                 });
         });
+});
 
+describe(convertXToOffsetX.name, () => {
         it("Should correctly convert x to offsetX", () => {
                 runTests([
                         {
@@ -69,7 +71,9 @@ describe(convertOffsetXToX.name, () => {
                         expect(convertXToOffsetX(x, containerWidth, pixelsPeerUnit).value).toBe(result.value);
                 });
         });
+});
 
+describe(convertOffsetYToY.name, () => {
         it("Should correctly convert offsetY to y", () => {
                 runTests([
                         {
@@ -100,7 +104,9 @@ describe(convertOffsetXToX.name, () => {
                         expect(convertOffsetYToY(offsetY, containerHeight, pixelsPeerUnit).value).toBe(result.value);
                 });
         });
+});
 
+describe(convertYToOffsetY.name, () => {
         it("Should correctly convert y to offsetY", () => {
                 runTests([
                         {

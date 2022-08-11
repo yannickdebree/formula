@@ -1,8 +1,10 @@
 import { debounceTime, filter, startWith, Subject } from 'rxjs';
-import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from './domain';
-import { Router } from './router';
-import { FORBIDDEN_FUNCTIONS_NAMES } from './utils/constants';
-import { isADivisibleNumber, isANumber } from './utils/numbers';
+import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from '../domain';
+import { Encoder } from '../Encoder';
+import { Router } from '../router';
+import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils/constants';
+import { convertXToOffsetX, convertYToOffsetY } from '../utils/conversion';
+import { isADivisibleNumber, isANumber } from '../utils/numbers';
 
 export class Drawer {
     private readonly context: CanvasRenderingContext2D;
@@ -17,7 +19,7 @@ export class Drawer {
         y: new UnitValue(0)
     }
 
-    constructor(router: Router, window: Window) {
+    constructor(router: Router, window: Window, encoder: Encoder) {
         const canvas = window.document.querySelector('canvas');
         if (!canvas) {
             throw new UnknowElementError();
@@ -52,7 +54,7 @@ export class Drawer {
             FORBIDDEN_FUNCTIONS_NAMES.forEach(key => {
                 const value = queryParams[key]
                 if (key === "ratio" && !!value) {
-                    const [numerator, denominator] = atob(value).split('/');
+                    const [numerator, denominator] = encoder.decode(value).split('/');
 
                     const unit = +numerator;
                     if (!isADivisibleNumber(unit)) {
@@ -72,7 +74,7 @@ export class Drawer {
                 }
 
                 if (key === "center" && !!value) {
-                    const [newX, newY] = atob(value).split('/');
+                    const [newX, newY] = encoder.decode(value).split('/');
 
                     const x = parseFloat(newX);
                     if (!isANumber(x)) {
@@ -84,8 +86,8 @@ export class Drawer {
                         throw new ImpossibleOperationError();
                     }
 
-                    this.center.x = x;
-                    this.center.y = y;
+                    this.center.x = new UnitValue(x);
+                    this.center.y = new UnitValue(y);
 
                     drawingOrder$.next();
                     return;
@@ -93,12 +95,22 @@ export class Drawer {
             });
         });
 
-        // canvas.addEventListener('wheel', () => {
-        //     this.ratio = this.ratio;
-        //     router.navigate({
-        //         ratio: btoa(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
-        //     });
-        // });
+        canvas.addEventListener('wheel', (event) => {
+            const isAZoomInAction = (event as any).wheelDeltaY > 0;
+
+            const increment = 5;
+            if (isAZoomInAction) {
+                this.ratio.pixelsPeerUnits += increment;
+            } else if (this.ratio.pixelsPeerUnits > increment + 1) {
+                this.ratio.pixelsPeerUnits -= increment;
+            }
+
+            router.navigate({
+                ratio: btoa(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
+            });
+        });
+
+
         // let originalMousePosition: { offsetX: number, offsetY: number } | undefined = undefined;
 
         // canvas.addEventListener('mousedown', ({ offsetX, offsetY }) => {
@@ -145,48 +157,71 @@ export class Drawer {
     }
 
     private draw() {
-        // const minX = this.center.x - this.canvasWidth / 2;
-        // const minY = this.center.y - this.canvasHeight / 2;
-        // const maxX = this.center.x + this.canvasWidth / 2;
-        // const maxY = this.center.y + this.canvasHeight / 2;
+        this.context.clearRect(0, 0, this.canvasWidth.value, this.canvasHeight.value);
 
-        // console.log('ratio : ', this.ratio);
-        // console.log('center : ', this.center);
-        // console.log("minX : ", minX);
-        // console.log("maxX : ", maxX);
-        // console.log("minY : ", minY);
-        // console.log("maxY : ", maxY);
+        const minX = this.center.x.value - (this.canvasWidth.value / 2);
+        const minY = this.center.y.value - (this.canvasHeight.value / 2);
+        const maxX = this.center.x.value + (this.canvasWidth.value / 2);
+        const maxY = this.center.y.value + (this.canvasHeight.value / 2)
 
-        // this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        if (minX < 0 && maxX > 0) {
+            this.context.beginPath();
+            this.context.strokeStyle = 'red';
+            this.context.lineWidth = 1;
+            const xInUnits = this.center.x.value >= 0 ? this.center.x : new UnitValue(-this.center.x.value);
+            const xInPixels = convertXToOffsetX(xInUnits, this.canvasWidth, this.ratio.pixelsPeerUnits);
+            this.context.moveTo(xInPixels.value, 0);
+            this.context.lineTo(xInPixels.value, this.canvasHeight.value);
+            this.context.stroke();
+        }
 
-        // if (minX < 0 && maxX > 0) {
-        //     this.context.beginPath();
-        //     this.context.strokeStyle = 'red';
-        //     this.context.lineWidth = 1;
-        //     let x: number;
-        //     if (this.center.x >= 0) {
-        //         x = this.center.x;
-        //     } else {
-        //         x = -this.center.x;
-        //     }
-        //     this.context.moveTo(convertXToOffsetX(x, this.canvasWidth), 0);
-        //     this.context.lineTo(convertXToOffsetX(x, this.canvasWidth), this.canvasHeight);
-        //     this.context.stroke();
-        // }
+        if (minY < 0 && maxY > 0) {
+            this.context.beginPath();
+            this.context.strokeStyle = 'grey';
+            this.context.lineWidth = 1;
+            const yInUnits = this.center.y.value >= 0 ? this.center.y : new UnitValue(-this.center.y.value);
+            const yInPixels = convertYToOffsetY(yInUnits, this.canvasHeight, this.ratio.pixelsPeerUnits);
+            this.context.moveTo(0, yInPixels.value);
+            this.context.lineTo(this.canvasWidth.value, yInPixels.value);
+            this.context.stroke();
+        }
 
-        // if (minY < 0 && maxY > 0) {
-        //     this.context.beginPath();
-        //     this.context.strokeStyle = 'grey';
-        //     this.context.lineWidth = 1;
-        //     let y: number;
-        //     if (this.center.y >= 0) {
-        //         y = this.center.y;
-        //     } else {
-        //         y = -this.center.y;
-        //     }
-        //     this.context.moveTo(0, convertYToOffsetY(y, this.canvasHeight, this.ratio.pixelsPeerUnits));
-        //     this.context.lineTo(this.canvasWidth, convertYToOffsetY(y, this.canvasHeight, this.ratio.pixelsPeerUnits));
-        //     this.context.stroke();
-        // }
+        const middleOfUnitsOnXAxe = this.computeMiddleOfUnitsOnAxe(this.canvasWidth);
+
+        for (let x = 0 - middleOfUnitsOnXAxe; x < middleOfUnitsOnXAxe; x = x + this.ratio.unit) {
+            this.context.beginPath();
+            this.context.strokeStyle = '#000000';
+            this.context.font = "12px Arial";
+            const offsetX = convertXToOffsetX(new UnitValue(x), this.canvasWidth, this.ratio.pixelsPeerUnits);
+            const offsetY = convertYToOffsetY(new UnitValue(0), this.canvasHeight, this.ratio.pixelsPeerUnits);
+            this.context.fillText(x.toString(), offsetX.value - 18, offsetY.value - 6);
+            this.context.fillRect(
+                offsetX.value,
+                offsetY.value - 5,
+                1,
+                10
+            );
+        }
+
+        const middleOfUnitsOnYAxe = this.computeMiddleOfUnitsOnAxe(this.canvasWidth);
+
+        for (let y = 0 - middleOfUnitsOnYAxe; y < middleOfUnitsOnYAxe; y = y + this.ratio.unit) {
+            this.context.beginPath();
+            this.context.strokeStyle = '#000000';
+            this.context.font = "12px Arial";
+            const offsetX = convertXToOffsetX(new UnitValue(0), this.canvasWidth, this.ratio.pixelsPeerUnits);
+            const offsetY = convertYToOffsetY(new UnitValue(y), this.canvasHeight, this.ratio.pixelsPeerUnits);
+            this.context.fillText(y.toString(), offsetX.value - 18, offsetY.value - 6);
+            this.context.fillRect(
+                offsetX.value - 5,
+                offsetY.value,
+                10,
+                1
+            );
+        }
+    }
+
+    private computeMiddleOfUnitsOnAxe(axeSize: PixelValue) {
+        return parseFloat((axeSize.value / this.ratio.pixelsPeerUnits).toFixed(this.ratio.unit - 1)) / 2;
     }
 }
