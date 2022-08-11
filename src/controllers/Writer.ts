@@ -1,8 +1,7 @@
 import { first, map } from 'rxjs';
+import { Encoder, QueryParams, Router } from '../core';
 import { UnknowElementError } from '../domain';
-import { Encoder } from '../Encoder';
-import { QueryParams, Router } from '../router';
-import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils/constants';
+import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils';
 
 export class Writer {
     private readonly document: Document;

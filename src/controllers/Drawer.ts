@@ -1,10 +1,7 @@
 import { debounceTime, filter, startWith, Subject } from 'rxjs';
+import { Encoder, Router } from '../core';
 import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from '../domain';
-import { Encoder } from '../Encoder';
-import { Router } from '../router';
-import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils/constants';
-import { convertXToOffsetX, convertYToOffsetY } from '../utils/conversion';
-import { isADivisibleNumber, isANumber } from '../utils/numbers';
+import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, isADivisibleNumber, isANumber } from '../utils';
 
 export class Drawer {
     private readonly context: CanvasRenderingContext2D;
