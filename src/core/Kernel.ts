@@ -1,5 +1,4 @@
-import 'reflect-metadata';
-import { ContainerInstance } from "typedi";
+import Container from "typedi";
 import { Controller } from "./controllers";
 
 export class Kernel {
@@ -9,11 +8,10 @@ export class Kernel {
 
     run() {
         window.addEventListener("DOMContentLoaded", () => {
-            const container = new ContainerInstance(new Date().toISOString());
-            container.set(Window, window);
+            Container.set(Window, window);
 
             this.controllers.forEach(controller => {
-                const instance = container.get(controller);
+                const instance = Container.get(controller);
                 if (!!instance['onInit']) {
                     instance.onInit();
                 }

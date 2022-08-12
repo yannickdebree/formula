@@ -1,18 +1,18 @@
-import { debounceTime, map, startWith, Subject } from 'rxjs';
+import { map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
-import { Encoder, OnInit, Router } from '../core';
-import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from '../domain';
-import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, isADivisibleNumber, isANumber, QueryParamsAnalyzer } from '../utils';
+import { OnInit, Router } from '../core';
+import { Formula, PixelValue, UnitValue, UnknowElementError } from '../domain';
+import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, QueryParamsAnalyzer } from '../utils';
+import { getPointsToDrawFromFormulas } from '../utils/formulas';
 
 @Service()
 export class Drawer implements OnInit {
     private readonly router: Router;
-    private readonly encoder: Encoder;
     private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
-    private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly canvasHeight: PixelValue;
     private readonly canvasWidth: PixelValue;
+    private formulas = new Array<Formula>();
     private ratio = {
         unit: 1,
         pixelsPeerUnits: 100
@@ -26,7 +26,6 @@ export class Drawer implements OnInit {
         container: ContainerInstance
     ) {
         this.router = container.get(Router);
-        this.encoder = container.get(Encoder);
         this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
         const window = container.get(Window);
 
@@ -34,7 +33,6 @@ export class Drawer implements OnInit {
         if (!canvas) {
             throw new UnknowElementError();
         }
-        this.canvas = canvas;
 
         const context = canvas.getContext("2d");
         if (!context) {
@@ -48,136 +46,41 @@ export class Drawer implements OnInit {
     }
 
     onInit() {
-        const drawingOrder$ = new Subject<void>();
-        drawingOrder$.pipe(startWith(void 0), debounceTime(0)).subscribe(() => {
+        this.router.queryParams$.pipe(
+            map(queryParams => this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key))),
+        ).subscribe((options) => {
+            this.formulas = [];
+            Object.keys(options).forEach(key => {
+                this.formulas.push(new Formula(key, options[key]));
+            });
             this.draw();
         });
-
-        const queryParams$ = this.router.queryParams$;
-
-        queryParams$.pipe(
-            map(queryParams => this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key))),
-        ).subscribe(() => {
-            drawingOrder$.next();
-        })
-
-        queryParams$.pipe(
-            map(queryParams => this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) => FORBIDDEN_FUNCTIONS_NAMES.includes(key))),
-        ).subscribe(queryParams => {
-            FORBIDDEN_FUNCTIONS_NAMES.forEach(key => {
-                const value = queryParams[key]
-                if (key === "ratio" && !!value) {
-                    const [numerator, denominator] = value.split('/');
-
-                    const unit = +numerator;
-                    if (!isADivisibleNumber(unit)) {
-                        throw new ImpossibleOperationError();
-                    }
-
-                    const pixelsPeerUnits = +denominator;
-                    if (!isADivisibleNumber(pixelsPeerUnits)) {
-                        throw new ImpossibleOperationError();
-                    }
-
-                    this.ratio.unit = unit;
-                    this.ratio.pixelsPeerUnits = pixelsPeerUnits;
-
-                    drawingOrder$.next();
-                    return;
-                }
-
-                if (key === "center" && !!value) {
-                    const [newX, newY] = this.encoder.decode(value).split('/');
-
-                    const x = parseFloat(newX);
-                    if (!isANumber(x)) {
-                        throw new ImpossibleOperationError();
-                    }
-
-                    const y = parseFloat(newY);
-                    if (!isANumber(y)) {
-                        throw new ImpossibleOperationError();
-                    }
-
-                    this.center.x = new UnitValue(x);
-                    this.center.y = new UnitValue(y);
-
-                    drawingOrder$.next();
-                    return;
-                }
-            });
-        });
-
-        this.canvas.addEventListener('wheel', (event) => {
-            const isAZoomInAction = (event as any).wheelDeltaY > 0;
-
-            const increment = 5;
-            if (isAZoomInAction) {
-                this.ratio.pixelsPeerUnits += increment;
-            } else if (this.ratio.pixelsPeerUnits > increment + 1) {
-                this.ratio.pixelsPeerUnits -= increment;
-            }
-
-            this.router.navigate({
-                ratio: this.encoder.encode(`${this.ratio.unit}/${this.ratio.pixelsPeerUnits}`)
-            });
-        });
-
-
-        // let originalMousePosition: { offsetX: number, offsetY: number } | undefined = undefined;
-
-        // canvas.addEventListener('mousedown', ({ offsetX, offsetY }) => {
-        //     originalMousePosition = { offsetX, offsetY };
-        //     canvas.style.cursor = "grabbing";
-        // });
-
-        // canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
-        //     if (!!originalMousePosition) {
-        //         const differenceX = offsetX - originalMousePosition.offsetX;
-        //         const differenceY = offsetY - originalMousePosition.offsetY;
-
-        //         this.context.fillRect(offsetX, offsetY, 2, 2);
-
-        //         const newOffsetX = originalMousePosition.offsetX + -1 * differenceX;
-        //         const newOffsetY = originalMousePosition.offsetY + -1 * differenceY;
-
-        //         originalMousePosition = { offsetX, offsetY };
-
-        //         this.context.fillRect(newOffsetX, newOffsetY, 2, 2);
-
-        //         // const newX = newOffsetX / this.ratio.pixelsPeerUnits;
-        //         // const newY = newOffsetY / this.ratio.pixelsPeerUnits;
-
-        //         console.clear();
-        //         console.log("Souris : ", this.convertOffsetXToX(offsetX));
-        //         console.log("Attendu : ", this.convertOffsetXToX(newOffsetX));
-
-        //         this.center = {
-        //             x: this.convertOffsetXToX(offsetX),
-        //             y: this.center.y
-        //         };
-
-        //         router.navigate({
-        //             center: btoa(`${this.center.x}/${this.center.y}`)
-        //         });
-        //     }
-        // });
-
-        // canvas.addEventListener('mouseup', () => {
-        //     originalMousePosition = undefined;
-        //     canvas.style.cursor = "grab";
-        // });   
     }
 
-    private draw() {
-        this.context.clearRect(0, 0, this.canvasWidth.value, this.canvasHeight.value);
+    private async draw() {
+        await Promise.all([
+            new Promise<void>((resolve) => {
+                this.context.clearRect(0, 0, this.canvasWidth.value, this.canvasHeight.value);
+                this.drawDefaultMark();
+                resolve();
+            }),
+            getPointsToDrawFromFormulas(this.formulas, this.canvasWidth, this.canvasHeight, this.ratio.pixelsPeerUnits).then(pointsToDraw => {
+                pointsToDraw.forEach(({ offsetX, offsetY }) => {
+                    this.context.fillRect(offsetX, offsetY, 1, 1);
+                });
+            })
+        ]).catch(() => {
+            alert('Operation invalide')
+        })
+    }
 
-        const minX = this.center.x.value - (this.canvasWidth.value / 2);
-        const minY = this.center.y.value - (this.canvasHeight.value / 2);
-        const maxX = this.center.x.value + (this.canvasWidth.value / 2);
-        const maxY = this.center.y.value + (this.canvasHeight.value / 2)
+    private drawDefaultMark() {
+        const isMinXOutsideCanvas = (this.center.x.value - (this.canvasWidth.value / 2)) < 0;
+        const isMinYOutsideCanvas = (this.center.y.value - (this.canvasHeight.value / 2)) < 0;
+        const isMaXYOutsideCanvas = (this.center.x.value + (this.canvasWidth.value / 2)) > 0;
+        const isMaxYOutsideCanvas = (this.center.y.value + (this.canvasHeight.value / 2)) > 0
 
-        if (minX < 0 && maxX > 0) {
+        if (isMinXOutsideCanvas && isMaXYOutsideCanvas) {
             this.context.beginPath();
             this.context.strokeStyle = 'red';
             this.context.lineWidth = 1;
@@ -188,7 +91,7 @@ export class Drawer implements OnInit {
             this.context.stroke();
         }
 
-        if (minY < 0 && maxY > 0) {
+        if (isMinYOutsideCanvas && isMaxYOutsideCanvas) {
             this.context.beginPath();
             this.context.strokeStyle = 'grey';
             this.context.lineWidth = 1;
@@ -216,7 +119,7 @@ export class Drawer implements OnInit {
             );
         }
 
-        const middleOfUnitsOnYAxe = this.computeMiddleOfUnitsOnAxe(this.canvasWidth);
+        const middleOfUnitsOnYAxe = this.computeMiddleOfUnitsOnAxe(this.canvasHeight);
 
         for (let y = 0 - middleOfUnitsOnYAxe; y < middleOfUnitsOnYAxe; y = y + this.ratio.unit) {
             this.context.beginPath();
@@ -235,6 +138,6 @@ export class Drawer implements OnInit {
     }
 
     private computeMiddleOfUnitsOnAxe(axeSize: PixelValue) {
-        return parseFloat((axeSize.value / this.ratio.pixelsPeerUnits).toFixed(this.ratio.unit - 1)) / 2;
+        return Math.ceil(Math.ceil(axeSize.value / this.ratio.pixelsPeerUnits) / 2);
     }
 }
