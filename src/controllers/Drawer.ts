@@ -2,17 +2,15 @@ import { map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
 import { OnInit, Router } from '../core';
 import { Formula, PixelValue, Ratio, UnitValue, UnknowElementError } from '../domain';
-import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, getPointsToDrawFromFormulas, QueryParamsAnalyzer } from '../utils';
+import { CanvasState, convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, getPointsToDrawFromFormulas, QueryParamsAnalyzer } from '../utils';
 
 @Service()
 export class Drawer implements OnInit {
     private readonly router: Router;
     private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
     private readonly context: CanvasRenderingContext2D;
-    private readonly canvasHeight: PixelValue;
-    private readonly canvasWidth: PixelValue;
+    private readonly canvasState: CanvasState;
     private formulas = new Array<Formula>();
-    private ratio = new Ratio(1, 100);
     private center = {
         x: new UnitValue(0),
         y: new UnitValue(0)
@@ -35,10 +33,12 @@ export class Drawer implements OnInit {
             throw new UnknowElementError();
         }
         this.context = context;
-        const canvasHeight = canvas.height = canvas.offsetHeight;
-        this.canvasHeight = new PixelValue(canvasHeight);
-        const canvasWidth = canvas.width = canvas.offsetWidth;
-        this.canvasWidth = new PixelValue(canvasWidth);
+
+        this.canvasState = new CanvasState(
+            new PixelValue(canvas.height = canvas.offsetHeight),
+            new PixelValue(canvas.width = canvas.offsetWidth),
+            new Ratio(1, 100)
+        );
     }
 
     onInit() {
@@ -56,11 +56,16 @@ export class Drawer implements OnInit {
     private async draw() {
         await Promise.all([
             new Promise<void>((resolve) => {
-                this.context.clearRect(0, 0, this.canvasWidth.value, this.canvasHeight.value);
+                this.context.clearRect(0, 0, this.canvasState.width.value, this.canvasState.height.value);
                 this.drawDefaultMark();
                 resolve();
             }),
-            getPointsToDrawFromFormulas(this.formulas, this.canvasWidth, this.canvasHeight, this.ratio.pixelsPeerUnits).then(pointsToDraw => {
+            getPointsToDrawFromFormulas(
+                this.formulas,
+                this.canvasState.width,
+                this.canvasState.height,
+                this.canvasState.getRatio().pixelsPeerUnits
+            ).then(pointsToDraw => {
                 pointsToDraw.forEach(({ x, y }) => {
                     this.context.fillRect(x, y, 1, 1);
                 });
@@ -71,19 +76,21 @@ export class Drawer implements OnInit {
     }
 
     private drawDefaultMark() {
-        const isMinXOutsideCanvas = (this.center.x.value - (this.canvasWidth.value / 2)) < 0;
-        const isMinYOutsideCanvas = (this.center.y.value - (this.canvasHeight.value / 2)) < 0;
-        const isMaXYOutsideCanvas = (this.center.x.value + (this.canvasWidth.value / 2)) > 0;
-        const isMaxYOutsideCanvas = (this.center.y.value + (this.canvasHeight.value / 2)) > 0
+        const canvasWidth = this.canvasState.width;
+        const canvasHeight = this.canvasState.height;
+        const isMinXOutsideCanvas = (this.center.x.value - (canvasWidth.value / 2)) < 0;
+        const isMinYOutsideCanvas = (this.center.y.value - (canvasHeight.value / 2)) < 0;
+        const isMaXYOutsideCanvas = (this.center.x.value + (canvasWidth.value / 2)) > 0;
+        const isMaxYOutsideCanvas = (this.center.y.value + (canvasHeight.value / 2)) > 0
 
         if (isMinXOutsideCanvas && isMaXYOutsideCanvas) {
             this.context.beginPath();
             this.context.strokeStyle = 'red';
             this.context.lineWidth = 1;
             const xInUnits = this.center.x.value >= 0 ? this.center.x : new UnitValue(-this.center.x.value);
-            const xInPixels = convertXToOffsetX(xInUnits, this.canvasWidth, this.ratio.pixelsPeerUnits);
+            const xInPixels = convertXToOffsetX(xInUnits, canvasWidth, this.canvasState.getRatio().pixelsPeerUnits);
             this.context.moveTo(xInPixels.value, 0);
-            this.context.lineTo(xInPixels.value, this.canvasHeight.value);
+            this.context.lineTo(xInPixels.value, canvasHeight.value);
             this.context.stroke();
         }
 
@@ -92,20 +99,20 @@ export class Drawer implements OnInit {
             this.context.strokeStyle = 'grey';
             this.context.lineWidth = 1;
             const yInUnits = this.center.y.value >= 0 ? this.center.y : new UnitValue(-this.center.y.value);
-            const yInPixels = convertYToOffsetY(yInUnits, this.canvasHeight, this.ratio.pixelsPeerUnits);
+            const yInPixels = convertYToOffsetY(yInUnits, canvasHeight, this.canvasState.getRatio().pixelsPeerUnits);
             this.context.moveTo(0, yInPixels.value);
-            this.context.lineTo(this.canvasWidth.value, yInPixels.value);
+            this.context.lineTo(canvasWidth.value, yInPixels.value);
             this.context.stroke();
         }
 
-        const middleOfUnitsOnXAxe = this.computeMiddleOfUnitsOnAxe(this.canvasWidth);
+        const middleOfUnitsOnXAxe = this.computeMiddleOfUnitsOnAxe(canvasWidth);
 
-        for (let x = 0 - middleOfUnitsOnXAxe; x < middleOfUnitsOnXAxe; x = x + this.ratio.unit) {
+        for (let x = 0 - middleOfUnitsOnXAxe; x < middleOfUnitsOnXAxe; x = x + this.canvasState.getRatio().unit) {
             this.context.beginPath();
             this.context.strokeStyle = '#000000';
             this.context.font = "12px Arial";
-            const offsetX = convertXToOffsetX(new UnitValue(x), this.canvasWidth, this.ratio.pixelsPeerUnits);
-            const offsetY = convertYToOffsetY(new UnitValue(0), this.canvasHeight, this.ratio.pixelsPeerUnits);
+            const offsetX = convertXToOffsetX(new UnitValue(x), canvasWidth, this.canvasState.getRatio().pixelsPeerUnits);
+            const offsetY = convertYToOffsetY(new UnitValue(0), canvasHeight, this.canvasState.getRatio().pixelsPeerUnits);
             this.context.fillText(x.toString(), offsetX.value - 18, offsetY.value - 6);
             this.context.fillRect(
                 offsetX.value,
@@ -115,14 +122,14 @@ export class Drawer implements OnInit {
             );
         }
 
-        const middleOfUnitsOnYAxe = this.computeMiddleOfUnitsOnAxe(this.canvasHeight);
+        const middleOfUnitsOnYAxe = this.computeMiddleOfUnitsOnAxe(canvasHeight);
 
-        for (let y = 0 - middleOfUnitsOnYAxe; y < middleOfUnitsOnYAxe; y = y + this.ratio.unit) {
+        for (let y = 0 - middleOfUnitsOnYAxe; y < middleOfUnitsOnYAxe; y = y + this.canvasState.getRatio().unit) {
             this.context.beginPath();
             this.context.strokeStyle = '#000000';
             this.context.font = "12px Arial";
-            const offsetX = convertXToOffsetX(new UnitValue(0), this.canvasWidth, this.ratio.pixelsPeerUnits);
-            const offsetY = convertYToOffsetY(new UnitValue(y), this.canvasHeight, this.ratio.pixelsPeerUnits);
+            const offsetX = convertXToOffsetX(new UnitValue(0), canvasWidth, this.canvasState.getRatio().pixelsPeerUnits);
+            const offsetY = convertYToOffsetY(new UnitValue(y), canvasHeight, this.canvasState.getRatio().pixelsPeerUnits);
             this.context.fillText(y.toString(), offsetX.value - 18, offsetY.value - 6);
             this.context.fillRect(
                 offsetX.value - 5,
@@ -134,6 +141,6 @@ export class Drawer implements OnInit {
     }
 
     private computeMiddleOfUnitsOnAxe(axeSize: PixelValue) {
-        return Math.ceil(Math.ceil(axeSize.value / this.ratio.pixelsPeerUnits) / 2);
+        return Math.ceil(Math.ceil(axeSize.value / this.canvasState.getRatio().pixelsPeerUnits) / 2);
     }
 }
