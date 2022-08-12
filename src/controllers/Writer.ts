@@ -3,11 +3,13 @@ import { ContainerInstance, Service } from 'typedi';
 import { Encoder, OnInit, QueryParams, Router } from '../core';
 import { UnknowElementError } from '../domain';
 import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils';
+import { QueryParamsAnalyzer } from '../utils/QueryParamsAnalyzer';
 
 @Service()
 export class Writer implements OnInit {
     private readonly router: Router;
     private readonly encoder: Encoder;
+    private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
     private readonly document: Document;
     private readonly form: HTMLFormElement;
     private textareas = new Array<HTMLTextAreaElement>();
@@ -17,6 +19,7 @@ export class Writer implements OnInit {
     ) {
         this.router = container.get(Router);
         this.encoder = container.get(Encoder);
+        this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
         const window = container.get(Window);
 
         this.document = window.document;
@@ -30,10 +33,7 @@ export class Writer implements OnInit {
     onInit() {
         this.router.queryParams$.pipe(
             first(),
-            map(queryParams => Object.keys(queryParams)
-                .filter(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key))
-                .reduce((acc, key) => ({ ...acc, ...{ [key]: this.encoder.decode(queryParams[key]) } }), {})
-            ),
+            map(queryParams => this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key))),
             map(queryParams => Object.keys(queryParams).length > 0 ? queryParams : { f: '' }),
         ).subscribe((queryParams) => {
             Object.keys(queryParams).forEach(key => {

@@ -1,13 +1,15 @@
-import { debounceTime, filter, startWith, Subject } from 'rxjs';
+import { debounceTime, map, startWith, Subject } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
 import { Encoder, OnInit, Router } from '../core';
 import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from '../domain';
 import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, isADivisibleNumber, isANumber } from '../utils';
+import { QueryParamsAnalyzer } from '../utils/QueryParamsAnalyzer';
 
 @Service()
 export class Drawer implements OnInit {
     private readonly router: Router;
     private readonly encoder: Encoder;
+    private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly canvasHeight: PixelValue;
@@ -26,6 +28,7 @@ export class Drawer implements OnInit {
     ) {
         this.router = container.get(Router);
         this.encoder = container.get(Encoder);
+        this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
         const window = container.get(Window);
 
         const canvas = window.document.querySelector('canvas');
@@ -54,18 +57,18 @@ export class Drawer implements OnInit {
         const queryParams$ = this.router.queryParams$;
 
         queryParams$.pipe(
-            filter(queryParams => !!Object.keys(queryParams).find(key => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)))
+            map(queryParams => this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key))),
         ).subscribe(() => {
             drawingOrder$.next();
         })
 
         queryParams$.pipe(
-            filter(queryParams => !!Object.keys(queryParams).find(key => FORBIDDEN_FUNCTIONS_NAMES.includes(key)))
+            map(queryParams => this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) => FORBIDDEN_FUNCTIONS_NAMES.includes(key))),
         ).subscribe(queryParams => {
             FORBIDDEN_FUNCTIONS_NAMES.forEach(key => {
                 const value = queryParams[key]
                 if (key === "ratio" && !!value) {
-                    const [numerator, denominator] = this.encoder.decode(value).split('/');
+                    const [numerator, denominator] = value.split('/');
 
                     const unit = +numerator;
                     if (!isADivisibleNumber(unit)) {
