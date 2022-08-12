@@ -11,7 +11,7 @@ export class Router {
         container: ContainerInstance
     ) {
         this.window = container.get(Window);
-        const urlSearchParamsEntries = new URLSearchParams(this.window.location?.search || '').entries();
+        const urlSearchParamsEntries = new URLSearchParams(this.window.location.search).entries();
         let yieldResult = urlSearchParamsEntries.next();
 
         const result: [string, string][] = []
@@ -28,7 +28,7 @@ export class Router {
         Object.keys(queryParams).forEach((key) => {
             url.searchParams.set(key, queryParams[key]);
         })
-        this.window.history.pushState(null, 'Free Mathematic Formula Drawer', url.search)
+        this.window.history.pushState(null, 'Free Mathematic Formula Drawer', url.pathname + url.search)
         this.queryParams$.next(queryParams);
     }
 }
