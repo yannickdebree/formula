@@ -2,8 +2,7 @@ import { first, map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
 import { Encoder, OnInit, QueryParams, Router } from '../core';
 import { UnknowElementError } from '../domain';
-import { FORBIDDEN_FUNCTIONS_NAMES } from '../utils';
-import { QueryParamsAnalyzer } from '../utils/QueryParamsAnalyzer';
+import { FORBIDDEN_FUNCTIONS_NAMES, mergeObjects, QueryParamsAnalyzer } from '../utils';
 
 @Service()
 export class Writer implements OnInit {
@@ -43,10 +42,9 @@ export class Writer implements OnInit {
 
         this.form.addEventListener('submit', (event) => {
             event.preventDefault();
-            const queryParams = this.textareas
+            const queryParams = mergeObjects(this.textareas
                 .sort((inputA, inputB) => inputA.name.localeCompare(inputB.name))
-                .map(input => ({ [input.name]: this.encoder.encode(input.value) }))
-                .reduce((acc, input) => ({ ...acc, ...input }), {});
+                .map(input => ({ [input.name]: this.encoder.encode(input.value) })));
             this.router.navigate(queryParams);
         });
     }

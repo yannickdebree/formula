@@ -1,5 +1,6 @@
 import { ReplaySubject } from "rxjs";
 import { ContainerInstance, Service } from "typedi";
+import { mergeObjects } from '../../utils';
 import { QueryParams } from './QueryParams';
 
 @Service()
@@ -20,7 +21,7 @@ export class Router {
             yieldResult = urlSearchParamsEntries.next();
         }
 
-        this.queryParams$.next(result.sort((a, b) => b[0].localeCompare(a[0])).map(c => ({ [c[0]]: c[1] })).reduce((acc, d) => ({ ...acc, ...d }), {}));
+        this.queryParams$.next(mergeObjects(result.sort((a, b) => b[0].localeCompare(a[0])).map(c => ({ [c[0]]: c[1] }))));
     }
 
     navigate(queryParams: QueryParams) {

@@ -2,8 +2,7 @@ import { debounceTime, map, startWith, Subject } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
 import { Encoder, OnInit, Router } from '../core';
 import { ImpossibleOperationError, PixelValue, UnitValue, UnknowElementError } from '../domain';
-import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, isADivisibleNumber, isANumber } from '../utils';
-import { QueryParamsAnalyzer } from '../utils/QueryParamsAnalyzer';
+import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, isADivisibleNumber, isANumber, QueryParamsAnalyzer } from '../utils';
 
 @Service()
 export class Drawer implements OnInit {

@@ -1,5 +1,6 @@
 import { ContainerInstance, Service } from "typedi";
 import { Encoder, QueryParams } from "../core";
+import { mergeObjects } from "./objects";
 
 @Service()
 export class QueryParamsAnalyzer {
@@ -12,8 +13,8 @@ export class QueryParamsAnalyzer {
     }
 
     getFiltredQueryParams(queryParams: QueryParams, filter: (key: string) => boolean): QueryParams {
-        return Object.keys(queryParams)
+        return mergeObjects(Object.keys(queryParams)
             .filter(filter)
-            .reduce((acc, key) => ({ ...acc, ...{ [key]: this.encoder.decode(queryParams[key]) } }), {})
+            .map(key => ({ [key]: this.encoder.decode(queryParams[key]) })));
     }
 }
