@@ -14,5 +14,5 @@ export function convertOffsetYToY(offsetY: PixelValue, containerHeight: PixelVal
 }
 
 export function convertYToOffsetY(y: UnitValue, containerHeight: PixelValue, pixelsPeerUnit: number) {
-    return new PixelValue((containerHeight.value / 2) + (y.value * pixelsPeerUnit));
+    return new PixelValue((containerHeight.value / 2) + (-1 * y.value * pixelsPeerUnit));
 }

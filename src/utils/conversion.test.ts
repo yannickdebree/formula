@@ -125,13 +125,13 @@ describe(convertYToOffsetY.name, () => {
                                 y: new UnitValue(3),
                                 containerHeight: new PixelValue(1000),
                                 pixelsPeerUnit: 100,
-                                result: new PixelValue(800)
+                                result: new PixelValue(200)
                         },
                         {
                                 y: new UnitValue(-2),
                                 containerHeight: new PixelValue(1000),
                                 pixelsPeerUnit: 100,
-                                result: new PixelValue(300)
+                                result: new PixelValue(700)
                         }
                 ], ({ y, containerHeight, result, pixelsPeerUnit }) => {
                         expect(convertYToOffsetY(y, containerHeight, pixelsPeerUnit).value).toBe(result.value);

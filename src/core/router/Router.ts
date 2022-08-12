@@ -1,5 +1,5 @@
 import { ReplaySubject } from "rxjs";
-import { ContainerInstance, Service } from "typedi";
+import { ContainerInstance, Inject, Service } from "typedi";
 import { mergeObjects } from '../../utils';
 import { QueryParams } from './QueryParams';
 
@@ -9,9 +9,10 @@ export class Router {
     public readonly queryParams$ = new ReplaySubject<QueryParams>(1);
 
     constructor(
-        container: ContainerInstance
+        container: ContainerInstance,
     ) {
         this.window = container.get(Window);
+
         const urlSearchParamsEntries = new URLSearchParams(this.window.location.search).entries();
         let yieldResult = urlSearchParamsEntries.next();
 
