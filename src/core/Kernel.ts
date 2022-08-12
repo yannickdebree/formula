@@ -3,7 +3,7 @@ import { Controller } from "./controllers";
 
 export class Kernel {
     constructor(
-        private readonly controllers: Array<Controller<any>>
+        private readonly controllers: Array<Controller>
     ) { }
 
     run() {
