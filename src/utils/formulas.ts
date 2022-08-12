@@ -1,10 +1,6 @@
 import { Formula, PixelValue } from "../domain";
 import { convertOffsetXToX, convertYToOffsetY } from "./conversion";
-
-type PointToDraw = {
-    offsetX: number;
-    offsetY: number;
-}
+import { PointToDraw } from "./PointToDraw";
 
 export function getPointsToDrawFromFormula(formula: Formula, canvasWidth: PixelValue, canvasHeight: PixelValue, pixelsPeerUnits: number) {
     return new Promise<Array<PointToDraw>>(resolve => {
@@ -18,10 +14,10 @@ export function getPointsToDrawFromFormula(formula: Formula, canvasWidth: PixelV
             const offsetY = convertYToOffsetY(new PixelValue(y), canvasHeight, pixelsPeerUnits).value;
 
             if (offsetY > 0 && offsetY < canvasHeight.value) {
-                pointsToDraw.push({
+                pointsToDraw.push(new PointToDraw({
                     offsetX,
                     offsetY
-                })
+                }))
             }
         }
 
