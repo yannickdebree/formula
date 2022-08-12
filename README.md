@@ -1,9 +1,17 @@
 # Free Mathematic Formula Drawer
+Online version here: https://yannickdebree.github.io/formula
 
-## Roadmap
-- Implement scaling
-- Implement browsing
-- Implement hiddable navbar
-- Implement point research
-- Upgrade encoder with no-depreacated deps
-- Fix dependencies injection
+## Development
+### Dependencies
+- [Node.js](https://nodejs.org/en/download/)
+- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+
+### Install dependencies
+```bash
+yarn
+```
+
+### Run development server
+```bash
+yarn start
+```
