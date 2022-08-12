@@ -1,6 +1,6 @@
 import { ReplaySubject } from "rxjs";
-import { ContainerInstance, Inject, Service } from "typedi";
-import { mergeObjects } from '../../utils';
+import { ContainerInstance, Service } from "typedi";
+import { APPLICATION_NAME, mergeObjects } from '../../utils';
 import { QueryParams } from './QueryParams';
 
 @Service()
@@ -31,7 +31,7 @@ export class Router {
             url.searchParams.set(key, queryParams[key]);
         });
 
-        this.window.history.pushState(null, 'Free Mathematic Formula Drawer', url.pathname + url.search)
+        this.window.history.pushState(null, APPLICATION_NAME, url.pathname + url.search)
         this.queryParams$.next(queryParams);
     }
 }
