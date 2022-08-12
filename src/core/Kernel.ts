@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ContainerInstance } from "typedi";
-import { Controller } from "./Controller";
+import { Controller } from "./controllers";
 
 export class Kernel {
     constructor(
