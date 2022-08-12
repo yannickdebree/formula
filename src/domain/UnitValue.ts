@@ -1,3 +1,3 @@
 export class UnitValue {
-    constructor(public readonly value: number) { }
+  constructor(public readonly value: number) {}
 }

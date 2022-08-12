@@ -1,1 +1,1 @@
-export class ImpossibleOperationError extends Error { }
+export class ImpossibleOperationError extends Error {}

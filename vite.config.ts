@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 export default defineConfig({
-    root: 'src',
-    server: { port: 8080 },
-    build: {
-        outDir: '../docs',
-        emptyOutDir: true
-    }
-})
+  root: "src",
+  server: { port: 8080 },
+  build: {
+    outDir: "../docs",
+    emptyOutDir: true,
+  },
+});

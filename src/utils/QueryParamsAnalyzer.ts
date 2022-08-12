@@ -5,17 +5,20 @@ import { mergeObjects } from "./objects";
 
 @Service()
 export class QueryParamsAnalyzer {
-    private encoder: Encoder;
+  private encoder: Encoder;
 
-    constructor(
-        container: ContainerInstance
-    ) {
-        this.encoder = container.get(Encoder)
-    }
+  constructor(container: ContainerInstance) {
+    this.encoder = container.get(Encoder);
+  }
 
-    getFiltredQueryParams(queryParams: QueryParams, filterFn: FilterFunction<string>): QueryParams {
-        return mergeObjects(Object.keys(queryParams)
-            .filter(filterFn)
-            .map(key => ({ [key]: this.encoder.decode(queryParams[key]) })));
-    }
+  getFiltredQueryParams(
+    queryParams: QueryParams,
+    filterFn: FilterFunction<string>
+  ): QueryParams {
+    return mergeObjects(
+      Object.keys(queryParams)
+        .filter(filterFn)
+        .map((key) => ({ [key]: this.encoder.decode(queryParams[key]) }))
+    );
+  }
 }
