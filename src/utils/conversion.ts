@@ -1,18 +1,21 @@
 import { PixelValue, UnitValue } from '../domain';
+import { CanvasState } from './CanvasState';
 
-export function convertOffsetXToX(offsetX: PixelValue, containerWidth: PixelValue, pixelsPeerUnit: number) {
-    return new UnitValue((offsetX.value - (containerWidth.value / 2)) / pixelsPeerUnit);
+export function convertOffsetXToX(offsetX: PixelValue, canvasState: CanvasState) {
+    return new UnitValue((offsetX.value - (canvasState.width.value / 2)) / canvasState.getRatio().pixelsPeerUnit);
 }
 
-export function convertXToOffsetX(x: UnitValue, containerWidth: PixelValue, pixelsPeerUnit: number) {
-    return new PixelValue((containerWidth.value / 2) + x.value * pixelsPeerUnit);
+export function convertXToOffsetX(x: UnitValue, canvasState: CanvasState) {
+    return new PixelValue((canvasState.width.value / 2) + x.value * canvasState.getRatio().pixelsPeerUnit);
 }
 
-export function convertOffsetYToY(offsetY: PixelValue, containerHeight: PixelValue, pixelsPeerUnit: number) {
-    const firstComputing = (containerHeight.value / 2) - offsetY.value;
-    return new UnitValue((firstComputing) / (firstComputing === 0 ? pixelsPeerUnit : (-1 * pixelsPeerUnit)));
+export function convertOffsetYToY(offsetY: PixelValue, canvasState: CanvasState) {
+    const firstComputing = (canvasState.height.value / 2) - offsetY.value;
+    const pixelsPeerUnits = canvasState.getRatio().pixelsPeerUnit;
+    return new UnitValue((firstComputing) / (firstComputing === 0 ? pixelsPeerUnits : (-1 * pixelsPeerUnits)));
 }
 
-export function convertYToOffsetY(y: UnitValue, containerHeight: PixelValue, pixelsPeerUnit: number) {
-    return new PixelValue((containerHeight.value / 2) + (-1 * y.value * pixelsPeerUnit));
+export function convertYToOffsetY(y: UnitValue, canvasState: CanvasState) {
+    const firstComputing = y.value * canvasState.getRatio().pixelsPeerUnit;
+    return new PixelValue((canvasState.height.value / 2) + (firstComputing === 0 ? firstComputing : -1 * firstComputing));
 }
