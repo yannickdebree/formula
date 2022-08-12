@@ -1,9 +1,8 @@
 import { map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
 import { OnInit, Router } from '../core';
-import { Formula, PixelValue, UnitValue, UnknowElementError } from '../domain';
-import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, QueryParamsAnalyzer } from '../utils';
-import { getPointsToDrawFromFormulas } from '../utils/formulas';
+import { Formula, PixelValue, Ratio, UnitValue, UnknowElementError } from '../domain';
+import { convertXToOffsetX, convertYToOffsetY, FORBIDDEN_FUNCTIONS_NAMES, getPointsToDrawFromFormulas, QueryParamsAnalyzer } from '../utils';
 
 @Service()
 export class Drawer implements OnInit {
@@ -13,10 +12,7 @@ export class Drawer implements OnInit {
     private readonly canvasHeight: PixelValue;
     private readonly canvasWidth: PixelValue;
     private formulas = new Array<Formula>();
-    private ratio = {
-        unit: 1,
-        pixelsPeerUnits: 100
-    };
+    private ratio = new Ratio(1, 100);
     private center = {
         x: new UnitValue(0),
         y: new UnitValue(0)
@@ -65,12 +61,12 @@ export class Drawer implements OnInit {
                 resolve();
             }),
             getPointsToDrawFromFormulas(this.formulas, this.canvasWidth, this.canvasHeight, this.ratio.pixelsPeerUnits).then(pointsToDraw => {
-                pointsToDraw.forEach(({ offsetX, offsetY }) => {
-                    this.context.fillRect(offsetX, offsetY, 1, 1);
+                pointsToDraw.forEach(({ x, y }) => {
+                    this.context.fillRect(x, y, 1, 1);
                 });
             })
         ]).catch(() => {
-            alert('Operation invalide')
+            alert('Invalid operation')
         })
     }
 

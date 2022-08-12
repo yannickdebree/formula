@@ -51,12 +51,10 @@ export class Writer implements OnInit {
 
     private createFormulaField({ key, queryParams }: { key: string, queryParams: QueryParams }) {
         const div = this.document.createElement('div');
-
         const label = this.document.createElement('label');
         label.textContent = `${key}(x) = `;
         label.htmlFor = key;
         div.appendChild(label);
-
         const textarea = this.document.createElement("textarea");
         textarea.name = key;
         const value = queryParams[key]
@@ -71,7 +69,6 @@ export class Writer implements OnInit {
                 }
             }
         });
-
         textarea.addEventListener('keyup', () => {
             const rows = textarea.value.split('\n').length;
             const difference = rows - textarea.rows;
@@ -86,7 +83,6 @@ export class Writer implements OnInit {
                 }
             }
         });
-
         div.appendChild(textarea);
         this.textareas.push(textarea);
         this.form.prepend(div)
