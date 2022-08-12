@@ -1,4 +1,4 @@
-# Free Mathematic Formula Drawer
+# Free mathematic formula drawer
 Online version here: https://yannickdebree.github.io/formula
 
 ## Development
