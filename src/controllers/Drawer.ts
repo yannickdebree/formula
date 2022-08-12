@@ -62,9 +62,7 @@ export class Drawer implements OnInit {
             }),
             getPointsToDrawFromFormulas(
                 this.formulas,
-                this.canvasState.width,
-                this.canvasState.height,
-                this.canvasState.getRatio().pixelsPeerUnits
+                this.canvasState
             ).then(pointsToDraw => {
                 pointsToDraw.forEach(({ x, y }) => {
                     this.context.fillRect(x, y, 1, 1);
@@ -88,7 +86,7 @@ export class Drawer implements OnInit {
             this.context.strokeStyle = 'red';
             this.context.lineWidth = 1;
             const xInUnits = this.center.x.value >= 0 ? this.center.x : new UnitValue(-this.center.x.value);
-            const xInPixels = convertXToOffsetX(xInUnits, canvasWidth, this.canvasState.getRatio().pixelsPeerUnits);
+            const xInPixels = convertXToOffsetX(xInUnits, this.canvasState);
             this.context.moveTo(xInPixels.value, 0);
             this.context.lineTo(xInPixels.value, canvasHeight.value);
             this.context.stroke();
@@ -99,7 +97,7 @@ export class Drawer implements OnInit {
             this.context.strokeStyle = 'grey';
             this.context.lineWidth = 1;
             const yInUnits = this.center.y.value >= 0 ? this.center.y : new UnitValue(-this.center.y.value);
-            const yInPixels = convertYToOffsetY(yInUnits, canvasHeight, this.canvasState.getRatio().pixelsPeerUnits);
+            const yInPixels = convertYToOffsetY(yInUnits, this.canvasState);
             this.context.moveTo(0, yInPixels.value);
             this.context.lineTo(canvasWidth.value, yInPixels.value);
             this.context.stroke();
@@ -111,8 +109,8 @@ export class Drawer implements OnInit {
             this.context.beginPath();
             this.context.strokeStyle = '#000000';
             this.context.font = "12px Arial";
-            const offsetX = convertXToOffsetX(new UnitValue(x), canvasWidth, this.canvasState.getRatio().pixelsPeerUnits);
-            const offsetY = convertYToOffsetY(new UnitValue(0), canvasHeight, this.canvasState.getRatio().pixelsPeerUnits);
+            const offsetX = convertXToOffsetX(new UnitValue(x), this.canvasState);
+            const offsetY = convertYToOffsetY(new UnitValue(0), this.canvasState);
             this.context.fillText(x.toString(), offsetX.value - 18, offsetY.value - 6);
             this.context.fillRect(
                 offsetX.value,
@@ -128,8 +126,8 @@ export class Drawer implements OnInit {
             this.context.beginPath();
             this.context.strokeStyle = '#000000';
             this.context.font = "12px Arial";
-            const offsetX = convertXToOffsetX(new UnitValue(0), canvasWidth, this.canvasState.getRatio().pixelsPeerUnits);
-            const offsetY = convertYToOffsetY(new UnitValue(y), canvasHeight, this.canvasState.getRatio().pixelsPeerUnits);
+            const offsetX = convertXToOffsetX(new UnitValue(0), this.canvasState);
+            const offsetY = convertYToOffsetY(new UnitValue(y), this.canvasState);
             this.context.fillText(y.toString(), offsetX.value - 18, offsetY.value - 6);
             this.context.fillRect(
                 offsetX.value - 5,
@@ -141,6 +139,6 @@ export class Drawer implements OnInit {
     }
 
     private computeMiddleOfUnitsOnAxe(axeSize: PixelValue) {
-        return Math.ceil(Math.ceil(axeSize.value / this.canvasState.getRatio().pixelsPeerUnits) / 2);
+        return Math.ceil(Math.ceil(axeSize.value / this.canvasState.getRatio().pixelsPeerUnit) / 2);
     }
 }

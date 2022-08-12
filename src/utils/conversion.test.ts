@@ -1,4 +1,5 @@
-import { PixelValue, UnitValue } from "../domain";
+import { PixelValue, Ratio, UnitValue } from "../domain";
+import { CanvasState } from "./CanvasState";
 import { convertOffsetXToX, convertOffsetYToY, convertXToOffsetX, convertYToOffsetY } from "./conversion";
 
 function runTests<Test>(tests: Array<Test>, fn: (test: Test) => void) {
@@ -12,30 +13,40 @@ describe(convertOffsetXToX.name, () => {
                 runTests([
                         {
                                 offsetX: new PixelValue(400),
-                                containerWidth: new PixelValue(800),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(800),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(0)
                         },
                         {
                                 offsetX: new PixelValue(475),
-                                containerWidth: new PixelValue(950),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(950),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(0)
-                        },
-                        {
+                        }, {
                                 offsetX: new PixelValue(800),
-                                containerWidth: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(3)
-                        },
-                        {
+                        }, {
                                 offsetX: new PixelValue(300),
-                                containerWidth: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(-2)
                         }
-                ], ({ offsetX, containerWidth, pixelsPeerUnit, result }) => {
-                        expect(convertOffsetXToX(offsetX, containerWidth, pixelsPeerUnit).value).toBe(result.value);
+                ], ({ offsetX, canvasState, result }) => {
+                        expect(convertOffsetXToX(offsetX, canvasState).value).toBe(result.value);
                 });
         });
 });
@@ -45,30 +56,42 @@ describe(convertXToOffsetX.name, () => {
                 runTests([
                         {
                                 x: new UnitValue(0),
-                                containerWidth: new PixelValue(800),
-                                pixelsPeerUnit: 100,
-                                result: new PixelValue(400)
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(800),
+                                        new Ratio(1, 100)
+                                ),
+                                result: new UnitValue(400)
                         },
                         {
                                 x: new UnitValue(0),
-                                containerWidth: new PixelValue(950),
-                                pixelsPeerUnit: 100,
-                                result: new PixelValue(475)
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(950),
+                                        new Ratio(1, 100)
+                                ),
+                                result: new UnitValue(475)
                         },
                         {
                                 x: new UnitValue(3),
-                                containerWidth: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
-                                result: new PixelValue(800)
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
+                                result: new UnitValue(800)
                         },
                         {
                                 x: new UnitValue(-2),
-                                containerWidth: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
-                                result: new PixelValue(300)
-                        }
-                ], ({ x, containerWidth, result, pixelsPeerUnit }) => {
-                        expect(convertXToOffsetX(x, containerWidth, pixelsPeerUnit).value).toBe(result.value);
+                                canvasState: new CanvasState(
+                                        new PixelValue(400),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
+                                result: new UnitValue(300)
+                        },
+                ], ({ x, canvasState, result }) => {
+                        expect(convertXToOffsetX(x, canvasState).value).toBe(result.value);
                 });
         });
 });
@@ -77,31 +100,43 @@ describe(convertOffsetYToY.name, () => {
         it("Should correctly convert offsetY to y", () => {
                 runTests([
                         {
-                                offsetY: new PixelValue(400),
-                                containerHeight: new PixelValue(800),
-                                pixelsPeerUnit: 100,
+                                offsetY: new UnitValue(400),
+                                canvasState: new CanvasState(
+                                        new PixelValue(800),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(0)
                         },
                         {
-                                offsetY: new PixelValue(475),
-                                containerHeight: new PixelValue(950),
-                                pixelsPeerUnit: 100,
+                                offsetY: new UnitValue(475),
+                                canvasState: new CanvasState(
+                                        new PixelValue(950),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(0)
                         },
                         {
-                                offsetY: new PixelValue(800),
-                                containerHeight: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
+                                offsetY: new UnitValue(800),
+                                canvasState: new CanvasState(
+                                        new PixelValue(1000),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(3)
                         },
                         {
-                                offsetY: new PixelValue(300),
-                                containerHeight: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
+                                offsetY: new UnitValue(300),
+                                canvasState: new CanvasState(
+                                        new PixelValue(1000),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new UnitValue(-2)
-                        }
-                ], ({ offsetY, containerHeight, pixelsPeerUnit, result }) => {
-                        expect(convertOffsetYToY(offsetY, containerHeight, pixelsPeerUnit).value).toBe(result.value);
+                        },
+                ], ({ offsetY, canvasState, result }) => {
+                        expect(convertOffsetYToY(offsetY, canvasState).value).toBe(result.value);
                 });
         });
 });
@@ -111,30 +146,42 @@ describe(convertYToOffsetY.name, () => {
                 runTests([
                         {
                                 y: new UnitValue(0),
-                                containerHeight: new PixelValue(800),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(800),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new PixelValue(400)
                         },
                         {
                                 y: new UnitValue(0),
-                                containerHeight: new PixelValue(950),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(950),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new PixelValue(475)
                         },
                         {
                                 y: new UnitValue(3),
-                                containerHeight: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(1000),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new PixelValue(200)
                         },
                         {
                                 y: new UnitValue(-2),
-                                containerHeight: new PixelValue(1000),
-                                pixelsPeerUnit: 100,
+                                canvasState: new CanvasState(
+                                        new PixelValue(1000),
+                                        new PixelValue(1000),
+                                        new Ratio(1, 100)
+                                ),
                                 result: new PixelValue(700)
-                        }
-                ], ({ y, containerHeight, result, pixelsPeerUnit }) => {
-                        expect(convertYToOffsetY(y, containerHeight, pixelsPeerUnit).value).toBe(result.value);
+                        },
+                ], ({ y, canvasState, result }) => {
+                        expect(convertYToOffsetY(y, canvasState).value).toBe(result.value);
                 });
         });
 });
