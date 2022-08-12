@@ -1,1 +1,1 @@
-export type Controller = new (...args: any[]) => any
+export type Controller = new (...args: any[]) => any;

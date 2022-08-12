@@ -1,5 +1,5 @@
-import 'reflect-metadata';
-import { Drawer, Writer } from './controllers';
-import { Kernel } from './core';
+import "reflect-metadata";
+import { Drawer, Writer } from "./controllers";
+import { Kernel } from "./core";
 
 new Kernel([Writer, Drawer]).run();
