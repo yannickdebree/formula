@@ -1,6 +1,5 @@
 import { distinctUntilChanged, map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
-import { createApp } from 'vue';
 import { Encoder, OnInit, Router } from '../core';
 import {
   Formula,
@@ -17,7 +16,6 @@ import {
   getPointsToDrawFromFormulas,
   QueryParamsAnalyzer,
 } from '../utils';
-import DrawerVue from './Drawer.vue';
 
 @Service()
 export class Drawer implements OnInit {
@@ -39,14 +37,7 @@ export class Drawer implements OnInit {
     this.encoder = container.get(Encoder);
     const window = container.get(Window);
 
-    const drawerDOMRoot = window.document.querySelector('#drawer-controller');
-    if (!drawerDOMRoot) {
-      throw new UnknowElementError();
-    }
-
-    createApp(DrawerVue).mount(drawerDOMRoot);
-
-    const canvas = drawerDOMRoot.querySelector('canvas');
+    const canvas = window.document.querySelector('canvas');
     if (!canvas) {
       throw new UnknowElementError();
     }

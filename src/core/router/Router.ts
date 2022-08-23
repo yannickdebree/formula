@@ -16,10 +16,13 @@ export class Router {
   }
 
   navigate(queryParams: QueryParams) {
-    const url = new URL(this.window.location.href);
+    const url = new URL(this.window.location.origin);
+
     Object.keys(queryParams).forEach((key) => {
       url.searchParams.set(key, queryParams[key]);
     });
+
+    console.log(url);
 
     this.window.history.pushState(
       null,
@@ -41,11 +44,7 @@ export class Router {
       yieldResult = urlSearchParamsEntries.next();
     }
 
-    const queryParams = mergeObjects(
-      result
-        .sort((a, b) => b[0].localeCompare(a[0]))
-        .map((c) => ({ [c[0]]: c[1] }))
-    );
+    const queryParams = mergeObjects(result.map((c) => ({ [c[0]]: c[1] })));
 
     this.queryParams = queryParams;
     this.queryParams$.next(queryParams);

@@ -14,15 +14,19 @@ body {
       position: fixed;
     }
 
-    #writer-controller {
+    #writer-root {
       z-index: 3;
       height: 100%;
       width: 100%;
       max-width: 400px;
       transition: transform 0.5s ease-in-out;
+      overflow-y: auto;
+      box-shadow: 2px 0px 5px #cccccc;
     }
 
-    #drawer-controller {
+    canvas {
+      background-color: #fcfcfc;
+      height: 100%;
       width: 100%;
     }
 
@@ -31,7 +35,7 @@ body {
         visibility: initial;
       }
 
-      #writer-controller {
+      #writer-root {
         position: fixed;
         max-width: 100%;
         transform: translateY(100%);
