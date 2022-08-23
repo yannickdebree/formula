@@ -1,5 +1,6 @@
 import { first, map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
+import { createApp } from 'vue';
 import { Encoder, OnInit, QueryParams, Router } from '../core';
 import { UnknowElementError } from '../domain';
 import {
@@ -7,6 +8,7 @@ import {
   mergeObjects,
   QueryParamsAnalyzer,
 } from '../utils';
+import WriterVue from './Writer.vue';
 
 @Service()
 export class Writer implements OnInit {
@@ -16,6 +18,7 @@ export class Writer implements OnInit {
   private readonly document: Document;
   private readonly form: HTMLFormElement;
   private readonly controllersContainer: HTMLDivElement;
+  private readonly writerDOMRoot: HTMLDivElement;
   private textareas = new Array<HTMLTextAreaElement>();
   private mobileViewState = new Proxy(
     { opened: false, active: false },
@@ -26,7 +29,7 @@ export class Writer implements OnInit {
           if (!!newValue && !target.active) {
             target.active = true;
           }
-          this.form.style.transform = !!newValue
+          this.writerDOMRoot.style.transform = !!newValue
             ? 'translateY(0%)'
             : 'translateY(100%)';
           return true;
@@ -41,9 +44,18 @@ export class Writer implements OnInit {
     this.encoder = container.get(Encoder);
     this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
     const window = container.get(Window);
-
     this.document = window.document;
-    const form = this.document.querySelector('form');
+
+    const writerDOMRoot =
+      window.document.querySelector<HTMLDivElement>('#writer-controller');
+    if (!writerDOMRoot) {
+      throw new UnknowElementError();
+    }
+    this.writerDOMRoot = writerDOMRoot;
+
+    createApp(WriterVue).mount(this.writerDOMRoot);
+
+    const form = writerDOMRoot.querySelector('form');
     if (!form) {
       throw new UnknowElementError();
     }
