@@ -4,51 +4,35 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  font-size: 16px;
+  overflow-y: hidden;
 }
 
 main {
-  display: flex;
   height: 100%;
 }
 
+.navbar-burger {
+  z-index: 2;
+  position: fixed;
+}
 form {
   display: flex;
   flex-direction: column;
-  background-color: #f1f1f1;
-  z-index: 2;
+  background-color: #fafafa;
+  z-index: 3;
   height: 100%;
   padding: 0 2rem;
-  min-width: 250px;
-}
-
-form div:first-child {
-  padding-top: 1.5rem;
-}
-
-form div {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  padding-bottom: 1.5rem;
-}
-
-form div label {
-  display: block;
-  min-width: max-content;
-}
-
-form div textarea {
-  margin-left: 5px;
-  padding: 0.25rem 0.5rem;
-  border-radius: 5px;
-  border: 0;
+  max-width: 400px;
   width: 100%;
-  resize: none;
+  transition: transform 0.5s ease-in-out;
+}
+
+form .navbar-burger {
+  z-index: 2;
+  position: relative;
 }
 
 canvas {
-  background-color: #fafafa;
   width: 100%;
   cursor: grab;
 }
@@ -58,7 +42,7 @@ canvas {
   height: 100%;
   width: 100%;
   top: 0;
-  z-index: 1;
+  z-index: 4;
   display: flex;
   background-color: rgba(185, 185, 185, 0.5);
   visibility: hidden;
@@ -66,4 +50,16 @@ canvas {
 
 .loading p {
   margin: auto;
+}
+
+@media screen and (max-width: 1000px) {
+  .navbar-burger {
+    visibility: initial;
+  }
+
+  form {
+    position: fixed;
+    max-width: 100%;
+    transform: translateY(100%);
+  }
 }
