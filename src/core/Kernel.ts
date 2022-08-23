@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import Container from "typedi";
 import { Controller } from "./controllers";
 
