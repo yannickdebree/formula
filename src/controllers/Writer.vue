@@ -5,6 +5,11 @@
       class="navbar-burger is-active"
       aria-label="menu"
       aria-expanded="false"
+      @click="
+        () => {
+          mobileMenuService.setPosition(false);
+        }
+      "
     >
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -45,11 +50,12 @@
 <script lang="ts">
 import { ReplaySubject } from 'rxjs';
 import { Formula } from '../domain';
-import { findNextFormulaName } from '../utils';
+import { findNextFormulaName, MobileMenuService } from '../utils';
 
 export default {
   data() {
     return {
+      mobileMenuService: MobileMenuService,
       formulas: new Array<{ name: string; content: string }>(),
       formulasVersionUpdated$: new ReplaySubject<Array<Formula>>(1),
     };
@@ -92,14 +98,17 @@ form {
 
   .navbar-burger {
     z-index: 2;
-    position: relative;
+    position: relative !important;
   }
 
   .container {
     padding: 1rem 2rem;
     overflow-y: auto;
+    width: 100%;
 
     .field {
+      display: flex;
+
       .field-label {
         padding: calc(0.75em - 1px);
         margin: 0;
