@@ -5,14 +5,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Free mathematic formula drawer</title>
-    <link rel="stylesheet" href="./main.css" />
     <base href="/" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <link rel="stylesheet" href="./main.css" />
   </head>
 
   <body>
-    <main>
+    <main class="is-flex">
+      <a
+        role="button"
+        class="navbar-burger"
+        aria-label="menu"
+        aria-expanded="false"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
       <form>
-        <button type="submit">Draw</button>
+        <a
+          role="button"
+          class="navbar-burger is-active"
+          aria-label="menu"
+          aria-expanded="false"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+        <div class="controllers"></div>
+        <button class="button is-primary" type="submit">Draw</button>
       </form>
       <canvas></canvas>
     </main>

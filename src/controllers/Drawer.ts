@@ -21,7 +21,7 @@ import {
 export class Drawer implements OnInit {
   private readonly router: Router;
   private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
-  private readonly window: Window;
+  private readonly canvas: HTMLCanvasElement;
   private readonly encoder: Encoder;
   private readonly context: CanvasRenderingContext2D;
   private readonly canvasState: CanvasState;
@@ -34,29 +34,30 @@ export class Drawer implements OnInit {
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
     this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
-    this.window = container.get(Window);
     this.encoder = container.get(Encoder);
+    const window = container.get(Window);
 
-    const canvas = this.window.document.querySelector('canvas');
+    const canvas = window.document.querySelector('canvas');
     if (!canvas) {
       throw new UnknowElementError();
     }
+    this.canvas = canvas;
 
-    const context = canvas.getContext('2d');
+    const context = this.canvas.getContext('2d');
     if (!context) {
       throw new UnknowElementError();
     }
     this.context = context;
 
     this.canvasState = new CanvasState(
-      new PixelValue((canvas.height = canvas.offsetHeight)),
-      new PixelValue((canvas.width = canvas.offsetWidth)),
+      new PixelValue((this.canvas.height = this.canvas.offsetHeight)),
+      new PixelValue((this.canvas.width = this.canvas.offsetWidth)),
       new Ratio(1, 100)
     );
   }
 
   onInit() {
-    this.window.addEventListener('wheel', (event) => {
+    this.canvas.addEventListener('wheel', (event) => {
       const ratio = this.canvasState.getRatio();
       let unit = ratio.unit;
       let pixelsPeerUnit = ratio.pixelsPeerUnit;

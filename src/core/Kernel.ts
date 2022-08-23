@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import Container from 'typedi';
-import { Controller } from './controllers';
+import { Controller, hasObjectImplementedOnInit } from './controllers';
 
 export class Kernel {
   constructor(private readonly controllers: Array<Controller>) {}
@@ -11,7 +11,7 @@ export class Kernel {
 
       this.controllers.forEach((controller) => {
         const instance = Container.get(controller);
-        if (!!instance['onInit']) {
+        if (hasObjectImplementedOnInit(instance)) {
           instance.onInit();
         }
       });

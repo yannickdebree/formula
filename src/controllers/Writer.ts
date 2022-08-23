@@ -15,7 +15,26 @@ export class Writer implements OnInit {
   private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
   private readonly document: Document;
   private readonly form: HTMLFormElement;
+  private readonly controllersContainer: HTMLDivElement;
   private textareas = new Array<HTMLTextAreaElement>();
+  private mobileViewState = new Proxy(
+    { opened: false, active: false },
+    {
+      set: (target, property, newValue) => {
+        if (property === 'opened') {
+          target[property] = newValue;
+          if (!!newValue && !target.active) {
+            target.active = true;
+          }
+          this.form.style.transform = !!newValue
+            ? 'translateY(0%)'
+            : 'translateY(100%)';
+          return true;
+        }
+        return false;
+      },
+    }
+  );
 
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
@@ -29,6 +48,13 @@ export class Writer implements OnInit {
       throw new UnknowElementError();
     }
     this.form = form;
+
+    const controllersContainer =
+      this.document.querySelector<HTMLDivElement>('.controllers');
+    if (!controllersContainer) {
+      throw new UnknowElementError();
+    }
+    this.controllersContainer = controllersContainer;
   }
 
   onInit() {
@@ -53,12 +79,22 @@ export class Writer implements OnInit {
 
     this.form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (this.mobileViewState.active) {
+        this.mobileViewState.opened = false;
+      }
       const queryParams = mergeObjects(
         this.textareas
           .sort((inputA, inputB) => inputA.name.localeCompare(inputB.name))
           .map((input) => ({ [input.name]: this.encoder.encode(input.value) }))
       );
       this.router.navigate(queryParams);
+    });
+
+    const navbarBurgers = this.document.querySelectorAll('.navbar-burger');
+    navbarBurgers.forEach((navbarBurger) => {
+      navbarBurger.addEventListener('click', () => {
+        this.mobileViewState.opened = !this.mobileViewState.opened;
+      });
     });
   }
 
@@ -71,10 +107,12 @@ export class Writer implements OnInit {
   }) {
     const div = this.document.createElement('div');
     const label = this.document.createElement('label');
+    label.classList.add('label');
     label.textContent = `${key}(x) = `;
     label.htmlFor = key;
     div.appendChild(label);
     const textarea = this.document.createElement('textarea');
+    textarea.classList.add('textarea');
     textarea.name = key;
     const value = queryParams[key];
     textarea.value = value;
@@ -104,6 +142,6 @@ export class Writer implements OnInit {
     });
     div.appendChild(textarea);
     this.textareas.push(textarea);
-    this.form.prepend(div);
+    this.controllersContainer.prepend(div);
   }
 }
