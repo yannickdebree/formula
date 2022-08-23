@@ -1,10 +1,10 @@
 import { ContainerInstance, Service } from 'typedi';
 import { OnInit } from '../core';
 import { UnknowElementError } from '../domain';
-import { MobileMenuService } from '../utils';
+import { MenuService } from '../utils';
 
 @Service()
-export class MobileMenu implements OnInit {
+export class Menu implements OnInit {
   private readonly navbarBurger: Element;
   private readonly writerDOMRoot: HTMLDivElement;
   private mobileViewState = new Proxy(
@@ -27,8 +27,8 @@ export class MobileMenu implements OnInit {
   );
 
   constructor(container: ContainerInstance) {
-    const mobileMenuService = container.get(MobileMenuService);
-    mobileMenuService.positionChanged$.subscribe((opened) => {
+    const menuService = container.get(MenuService);
+    menuService.positionChanged$.subscribe((opened) => {
       this.mobileViewState.opened = opened;
     });
     const window = container.get(Window);
