@@ -1,7 +1,7 @@
-import { ReplaySubject } from "rxjs";
-import { ContainerInstance, Service } from "typedi";
-import { APPLICATION_NAME, mergeObjects } from "../../utils";
-import { QueryParams } from "./QueryParams";
+import { ReplaySubject } from 'rxjs';
+import { ContainerInstance, Service } from 'typedi';
+import { APPLICATION_NAME, mergeObjects } from '../../utils';
+import { QueryParams } from './QueryParams';
 
 @Service()
 export class Router {

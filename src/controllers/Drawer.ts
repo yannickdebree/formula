@@ -1,13 +1,13 @@
-import { distinctUntilChanged, map } from "rxjs";
-import { ContainerInstance, Service } from "typedi";
-import { Encoder, OnInit, Router } from "../core";
+import { distinctUntilChanged, map } from 'rxjs';
+import { ContainerInstance, Service } from 'typedi';
+import { Encoder, OnInit, Router } from '../core';
 import {
   Formula,
   PixelValue,
   Ratio,
   UnitValue,
   UnknowElementError,
-} from "../domain";
+} from '../domain';
 import {
   CanvasState,
   convertXToOffsetX,
@@ -15,7 +15,7 @@ import {
   FORBIDDEN_FUNCTIONS_NAMES,
   getPointsToDrawFromFormulas,
   QueryParamsAnalyzer,
-} from "../utils";
+} from '../utils';
 
 @Service()
 export class Drawer implements OnInit {
@@ -37,12 +37,12 @@ export class Drawer implements OnInit {
     this.window = container.get(Window);
     this.encoder = container.get(Encoder);
 
-    const canvas = this.window.document.querySelector("canvas");
+    const canvas = this.window.document.querySelector('canvas');
     if (!canvas) {
       throw new UnknowElementError();
     }
 
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
     if (!context) {
       throw new UnknowElementError();
     }
@@ -56,7 +56,7 @@ export class Drawer implements OnInit {
   }
 
   onInit() {
-    this.window.addEventListener("wheel", (event) => {
+    this.window.addEventListener('wheel', (event) => {
       const ratio = this.canvasState.getRatio();
       let unit = ratio.unit;
       let pixelsPeerUnit = ratio.pixelsPeerUnit;
@@ -86,14 +86,14 @@ export class Drawer implements OnInit {
         distinctUntilChanged()
       )
       .subscribe((options) => {
-        if (options.hasOwnProperty("ratio") && !!options["ratio"]) {
+        if (options.hasOwnProperty('ratio') && !!options['ratio']) {
           try {
             const [unitAsString, pixelsPeerUnitAsString] =
-              options["ratio"].split("/");
+              options['ratio'].split('/');
             const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
             this.canvasState.setRatio(newRatio);
           } catch (err) {
-            alert("Ratio implementation error");
+            alert('Ratio implementation error');
           }
         }
       });
@@ -133,7 +133,7 @@ export class Drawer implements OnInit {
       }),
       getPointsToDrawFromFormulas(this.formulas, this.canvasState),
     ]).catch(() => {
-      alert("Invalid operation");
+      alert('Invalid operation');
     });
 
     if (Array.isArray(result)) {
@@ -156,7 +156,7 @@ export class Drawer implements OnInit {
 
     if (isMinXOutsideCanvas && isMaXYOutsideCanvas) {
       this.context.beginPath();
-      this.context.strokeStyle = "red";
+      this.context.strokeStyle = 'red';
       this.context.lineWidth = 1;
       const xInUnits =
         this.center.x.value >= 0
@@ -170,7 +170,7 @@ export class Drawer implements OnInit {
 
     if (isMinYOutsideCanvas && isMaxYOutsideCanvas) {
       this.context.beginPath();
-      this.context.strokeStyle = "grey";
+      this.context.strokeStyle = 'grey';
       this.context.lineWidth = 1;
       const yInUnits =
         this.center.y.value >= 0
@@ -190,8 +190,8 @@ export class Drawer implements OnInit {
       x = x + this.canvasState.getRatio().unit
     ) {
       this.context.beginPath();
-      this.context.strokeStyle = "#000000";
-      this.context.font = "10px Arial";
+      this.context.strokeStyle = '#000000';
+      this.context.font = '10px Arial';
       const offsetX = convertXToOffsetX(new UnitValue(x), this.canvasState);
       const offsetY = convertYToOffsetY(new UnitValue(0), this.canvasState);
       this.context.fillText(
@@ -210,8 +210,8 @@ export class Drawer implements OnInit {
       y = y + this.canvasState.getRatio().unit
     ) {
       this.context.beginPath();
-      this.context.strokeStyle = "#000000";
-      this.context.font = "12px Arial";
+      this.context.strokeStyle = '#000000';
+      this.context.font = '12px Arial';
       const offsetX = convertXToOffsetX(new UnitValue(0), this.canvasState);
       const offsetY = convertYToOffsetY(new UnitValue(y), this.canvasState);
       this.context.fillText(

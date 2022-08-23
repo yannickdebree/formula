@@ -1,11 +1,11 @@
-import { PixelValue, Ratio, UnitValue } from "../domain";
-import { CanvasState } from "./CanvasState";
+import { PixelValue, Ratio, UnitValue } from '../domain';
+import { CanvasState } from './CanvasState';
 import {
   convertOffsetXToX,
   convertOffsetYToY,
   convertXToOffsetX,
   convertYToOffsetY,
-} from "./conversion";
+} from './conversion';
 
 function runTests<Test>(tests: Array<Test>, fn: (test: Test) => void) {
   tests.forEach((test) => {
@@ -14,7 +14,7 @@ function runTests<Test>(tests: Array<Test>, fn: (test: Test) => void) {
 }
 
 describe(convertOffsetXToX.name, () => {
-  it("Should correctly convert offsetX to x", () => {
+  it('Should correctly convert offsetX to x', () => {
     runTests(
       [
         {
@@ -64,7 +64,7 @@ describe(convertOffsetXToX.name, () => {
 });
 
 describe(convertXToOffsetX.name, () => {
-  it("Should correctly convert x to offsetX", () => {
+  it('Should correctly convert x to offsetX', () => {
     runTests(
       [
         {
@@ -112,7 +112,7 @@ describe(convertXToOffsetX.name, () => {
 });
 
 describe(convertOffsetYToY.name, () => {
-  it("Should correctly convert offsetY to y", () => {
+  it('Should correctly convert offsetY to y', () => {
     runTests(
       [
         {
@@ -162,7 +162,7 @@ describe(convertOffsetYToY.name, () => {
 });
 
 describe(convertYToOffsetY.name, () => {
-  it("Should correctly convert y to offsetY", () => {
+  it('Should correctly convert y to offsetY', () => {
     runTests(
       [
         {

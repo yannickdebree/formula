@@ -1,7 +1,7 @@
-import { Formula, PixelValue } from "../domain";
-import { CanvasState } from "./CanvasState";
-import { convertOffsetXToX, convertYToOffsetY } from "./conversion";
-import { PointToDraw } from "./PointToDraw";
+import { Formula, PixelValue } from '../domain';
+import { CanvasState } from './CanvasState';
+import { convertOffsetXToX, convertYToOffsetY } from './conversion';
+import { PointToDraw } from './PointToDraw';
 
 export function getPointsToDrawFromFormula(
   formula: Formula,
@@ -13,7 +13,7 @@ export function getPointsToDrawFromFormula(
     const fn = new Function(
       `return function(x) { return ${formula.content
         .toLowerCase()
-        .replace(/\s/g, "")
+        .replace(/\s/g, '')
         .trim()}; }`
     )() as (x: number) => number;
 

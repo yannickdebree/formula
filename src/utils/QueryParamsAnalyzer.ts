@@ -1,7 +1,7 @@
-import { ContainerInstance, Service } from "typedi";
-import { Encoder, QueryParams } from "../core";
-import { FilterFunction } from "./common";
-import { mergeObjects } from "./objects";
+import { ContainerInstance, Service } from 'typedi';
+import { Encoder, QueryParams } from '../core';
+import { FilterFunction } from './common';
+import { mergeObjects } from './objects';
 
 @Service()
 export class QueryParamsAnalyzer {

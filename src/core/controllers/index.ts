@@ -1,2 +1,2 @@
-export * from "./Controller";
-export * from "./OnInit";
+export * from './Controller';
+export * from './OnInit';

@@ -1,12 +1,12 @@
-import { first, map } from "rxjs";
-import { ContainerInstance, Service } from "typedi";
-import { Encoder, OnInit, QueryParams, Router } from "../core";
-import { UnknowElementError } from "../domain";
+import { first, map } from 'rxjs';
+import { ContainerInstance, Service } from 'typedi';
+import { Encoder, OnInit, QueryParams, Router } from '../core';
+import { UnknowElementError } from '../domain';
 import {
   FORBIDDEN_FUNCTIONS_NAMES,
   mergeObjects,
   QueryParamsAnalyzer,
-} from "../utils";
+} from '../utils';
 
 @Service()
 export class Writer implements OnInit {
@@ -24,7 +24,7 @@ export class Writer implements OnInit {
     const window = container.get(Window);
 
     this.document = window.document;
-    const form = this.document.querySelector("form");
+    const form = this.document.querySelector('form');
     if (!form) {
       throw new UnknowElementError();
     }
@@ -42,7 +42,7 @@ export class Writer implements OnInit {
           )
         ),
         map((queryParams) =>
-          Object.keys(queryParams).length > 0 ? queryParams : { f: "" }
+          Object.keys(queryParams).length > 0 ? queryParams : { f: '' }
         )
       )
       .subscribe((queryParams) => {
@@ -51,7 +51,7 @@ export class Writer implements OnInit {
         });
       });
 
-    this.form.addEventListener("submit", (event) => {
+    this.form.addEventListener('submit', (event) => {
       event.preventDefault();
       const queryParams = mergeObjects(
         this.textareas
@@ -69,27 +69,27 @@ export class Writer implements OnInit {
     key: string;
     queryParams: QueryParams;
   }) {
-    const div = this.document.createElement("div");
-    const label = this.document.createElement("label");
+    const div = this.document.createElement('div');
+    const label = this.document.createElement('label');
     label.textContent = `${key}(x) = `;
     label.htmlFor = key;
     div.appendChild(label);
-    const textarea = this.document.createElement("textarea");
+    const textarea = this.document.createElement('textarea');
     textarea.name = key;
     const value = queryParams[key];
     textarea.value = value;
-    textarea.placeholder = "Formula";
-    textarea.rows = value.split("\n").length;
-    textarea.addEventListener("keypress", (event) => {
-      if (event.code === "Enter") {
+    textarea.placeholder = 'Formula';
+    textarea.rows = value.split('\n').length;
+    textarea.addEventListener('keypress', (event) => {
+      if (event.code === 'Enter') {
         if (!event.shiftKey) {
           event.preventDefault();
-          this.form.dispatchEvent(new SubmitEvent("submit"));
+          this.form.dispatchEvent(new SubmitEvent('submit'));
         }
       }
     });
-    textarea.addEventListener("keyup", () => {
-      const rows = textarea.value.split("\n").length;
+    textarea.addEventListener('keyup', () => {
+      const rows = textarea.value.split('\n').length;
       const difference = rows - textarea.rows;
 
       if (difference !== 0) {
