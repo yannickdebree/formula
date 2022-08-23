@@ -106,11 +106,17 @@ export class Writer implements OnInit {
     queryParams: QueryParams;
   }) {
     const div = this.document.createElement('div');
+    div.classList.add('field', 'is-horizontal');
+
+    const fieldLabel = this.document.createElement('div');
+    fieldLabel.classList.add('field-label', 'is-normal');
     const label = this.document.createElement('label');
     label.classList.add('label');
-    label.textContent = `${key}(x) = `;
+    label.textContent = `${key}(x) =`;
     label.htmlFor = key;
-    div.appendChild(label);
+    fieldLabel.append(label);
+
+    div.appendChild(fieldLabel);
     const textarea = this.document.createElement('textarea');
     textarea.classList.add('textarea');
     textarea.name = key;
