@@ -15,6 +15,7 @@ main {
   z-index: 2;
   position: fixed;
 }
+
 form {
   display: flex;
   flex-direction: column;
@@ -32,6 +33,22 @@ form .navbar-burger {
   position: relative;
 }
 
+.field-label {
+  padding: calc(0.75em - 1px);
+  margin: 0;
+  padding-left: 0;
+  min-width: max-content;
+  padding-right: 0.5rem;
+}
+
+.field textarea {
+  resize: none;
+  max-width: none;
+  min-width: auto;
+  width: 100%;
+
+  width: 100%;
+}
 canvas {
   width: 100%;
   cursor: grab;
