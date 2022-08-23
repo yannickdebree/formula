@@ -1,6 +1,6 @@
-import { map } from "rxjs";
+import { distinctUntilChanged, map } from "rxjs";
 import { ContainerInstance, Service } from "typedi";
-import { OnInit, Router } from "../core";
+import { Encoder, OnInit, Router } from "../core";
 import {
   Formula,
   PixelValue,
@@ -21,6 +21,8 @@ import {
 export class Drawer implements OnInit {
   private readonly router: Router;
   private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
+  private readonly window: Window;
+  private readonly encoder: Encoder;
   private readonly context: CanvasRenderingContext2D;
   private readonly canvasState: CanvasState;
   private formulas = new Array<Formula>();
@@ -32,9 +34,10 @@ export class Drawer implements OnInit {
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
     this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
-    const window = container.get(Window);
+    this.window = container.get(Window);
+    this.encoder = container.get(Encoder);
 
-    const canvas = window.document.querySelector("canvas");
+    const canvas = this.window.document.querySelector("canvas");
     if (!canvas) {
       throw new UnknowElementError();
     }
@@ -53,6 +56,48 @@ export class Drawer implements OnInit {
   }
 
   onInit() {
+    this.window.addEventListener("wheel", (event) => {
+      const ratio = this.canvasState.getRatio();
+      let unit = ratio.unit;
+      let pixelsPeerUnit = ratio.pixelsPeerUnit;
+      let scale = 1;
+
+      if (event.deltaY - event.deltaX > 0) {
+        pixelsPeerUnit = pixelsPeerUnit - scale;
+      } else {
+        pixelsPeerUnit = pixelsPeerUnit + scale;
+      }
+
+      if (pixelsPeerUnit > 0) {
+        const ratioAsString = this.encoder.encode(`${unit}/${pixelsPeerUnit}`);
+        this.router.navigate({
+          ratio: ratioAsString,
+        });
+      }
+    });
+
+    this.router.queryParams$
+      .pipe(
+        map((queryParams) =>
+          this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) =>
+            FORBIDDEN_FUNCTIONS_NAMES.includes(key)
+          )
+        ),
+        distinctUntilChanged()
+      )
+      .subscribe((options) => {
+        if (options.hasOwnProperty("ratio") && !!options["ratio"]) {
+          try {
+            const [unitAsString, pixelsPeerUnitAsString] =
+              options["ratio"].split("/");
+            const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
+            this.canvasState.setRatio(newRatio);
+          } catch (err) {
+            alert("Ratio implementation error");
+          }
+        }
+      });
+
     this.router.queryParams$
       .pipe(
         map((queryParams) =>
@@ -60,19 +105,22 @@ export class Drawer implements OnInit {
             queryParams,
             (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)
           )
-        )
+        ),
+        distinctUntilChanged()
       )
-      .subscribe((options) => {
+      .subscribe((formulasInQueryParams) => {
         this.formulas = [];
-        Object.keys(options).forEach((key) => {
-          this.formulas.push(new Formula(key, options[key]));
+        Object.keys(formulasInQueryParams).forEach((formulaName) => {
+          this.formulas.push(
+            new Formula(formulaName, formulasInQueryParams[formulaName])
+          );
         });
         this.draw();
       });
   }
 
   private async draw() {
-    await Promise.all([
+    const result = await Promise.all([
       new Promise<void>((resolve) => {
         this.context.clearRect(
           0,
@@ -83,16 +131,17 @@ export class Drawer implements OnInit {
         this.drawDefaultMark();
         resolve();
       }),
-      getPointsToDrawFromFormulas(this.formulas, this.canvasState).then(
-        (pointsToDraw) => {
-          pointsToDraw.forEach(({ x, y }) => {
-            this.context.fillRect(x, y, 1, 1);
-          });
-        }
-      ),
+      getPointsToDrawFromFormulas(this.formulas, this.canvasState),
     ]).catch(() => {
       alert("Invalid operation");
     });
+
+    if (Array.isArray(result)) {
+      const [, pointsToDraw] = result;
+      pointsToDraw.forEach(({ x, y }) => {
+        this.context.fillRect(x, y, 1, 1);
+      });
+    }
   }
 
   private drawDefaultMark() {
@@ -142,7 +191,7 @@ export class Drawer implements OnInit {
     ) {
       this.context.beginPath();
       this.context.strokeStyle = "#000000";
-      this.context.font = "12px Arial";
+      this.context.font = "10px Arial";
       const offsetX = convertXToOffsetX(new UnitValue(x), this.canvasState);
       const offsetY = convertYToOffsetY(new UnitValue(0), this.canvasState);
       this.context.fillText(

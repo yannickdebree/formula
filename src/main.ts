@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { Drawer, Writer } from "./controllers";
 import { Kernel } from "./core";
 
