@@ -3,6 +3,53 @@ import { CanvasState } from './CanvasState';
 import { convertOffsetXToX, convertYToOffsetY } from './conversion';
 import { PointToDraw } from './PointToDraw';
 
+const alphabet = [
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'y',
+  'z',
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+];
+
+export function findNextFormulaName(
+  existingFormulas: Array<Formula>,
+  _alphabet = alphabet
+): string {
+  const alphabetLength = _alphabet.length;
+  const existingNames = existingFormulas.map((formula) => formula.name);
+  for (let i = 0; i < alphabetLength; ++i) {
+    if (!existingNames.includes(_alphabet[i])) {
+      return _alphabet[i];
+    }
+  }
+  return findNextFormulaName(
+    existingFormulas,
+    alphabet.map((letter) => letter + "'")
+  );
+}
+
 export function getPointsToDrawFromFormula(
   formula: Formula,
   canvasState: CanvasState

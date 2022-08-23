@@ -1,8 +1,8 @@
-import { first, map } from 'rxjs';
+import { first, map, ReplaySubject } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
-import { createApp } from 'vue';
-import { Encoder, OnInit, QueryParams, Router } from '../core';
-import { UnknowElementError } from '../domain';
+import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
+import { Encoder, OnInit, Router } from '../core';
+import { Formula, UnknowElementError } from '../domain';
 import {
   FORBIDDEN_FUNCTIONS_NAMES,
   mergeObjects,
@@ -10,34 +10,51 @@ import {
 } from '../utils';
 import WriterVue from './Writer.vue';
 
+type VueInstance = ComponentPublicInstance<
+  {},
+  {},
+  {
+    formulas: Array<Formula>;
+    formulasVersionUpdated$: ReplaySubject<Array<Formula>>;
+  },
+  {},
+  {},
+  {},
+  {},
+  {},
+  false,
+  ComponentOptionsBase<any, any, any, any, any, any, any, any, any, {}>
+>;
+
 @Service()
 export class Writer implements OnInit {
   private readonly router: Router;
   private readonly encoder: Encoder;
   private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
   private readonly document: Document;
-  private readonly form: HTMLFormElement;
-  private readonly controllersContainer: HTMLDivElement;
+  // private readonly form: HTMLFormElement;
+  // private readonly controllersContainer: HTMLDivElement;
   private readonly writerDOMRoot: HTMLDivElement;
-  private textareas = new Array<HTMLTextAreaElement>();
-  private mobileViewState = new Proxy(
-    { opened: false, active: false },
-    {
-      set: (target, property, newValue) => {
-        if (property === 'opened') {
-          target[property] = newValue;
-          if (!!newValue && !target.active) {
-            target.active = true;
-          }
-          this.writerDOMRoot.style.transform = !!newValue
-            ? 'translateY(0%)'
-            : 'translateY(100%)';
-          return true;
-        }
-        return false;
-      },
-    }
-  );
+  private readonly vueInstance: VueInstance;
+  // private textareas = new Array<HTMLTextAreaElement>();
+  // private mobileViewState = new Proxy(
+  //   { opened: false, active: false },
+  //   {
+  //     set: (target, property, newValue) => {
+  //       if (property === 'opened') {
+  //         target[property] = newValue;
+  //         if (!!newValue && !target.active) {
+  //           target.active = true;
+  //         }
+  //         this.writerDOMRoot.style.transform = !!newValue
+  //           ? 'translateY(0%)'
+  //           : 'translateY(100%)';
+  //         return true;
+  //       }
+  //       return false;
+  //     },
+  //   }
+  // );
 
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
@@ -47,29 +64,43 @@ export class Writer implements OnInit {
     this.document = window.document;
 
     const writerDOMRoot =
-      window.document.querySelector<HTMLDivElement>('#writer-controller');
+      window.document.querySelector<HTMLDivElement>('#writer-root');
     if (!writerDOMRoot) {
       throw new UnknowElementError();
     }
     this.writerDOMRoot = writerDOMRoot;
 
-    createApp(WriterVue).mount(this.writerDOMRoot);
+    this.vueInstance = createApp(WriterVue).mount(
+      this.writerDOMRoot
+    ) as VueInstance;
 
-    const form = writerDOMRoot.querySelector('form');
-    if (!form) {
-      throw new UnknowElementError();
-    }
-    this.form = form;
+    // const form = writerDOMRoot.querySelector('form');
+    // if (!form) {
+    //   throw new UnknowElementError();
+    // }
+    // this.form = form;
 
-    const controllersContainer =
-      this.document.querySelector<HTMLDivElement>('.controllers');
-    if (!controllersContainer) {
-      throw new UnknowElementError();
-    }
-    this.controllersContainer = controllersContainer;
+    // const controllersContainer = this.document.querySelector<HTMLDivElement>('.controllers');
+    // if (!controllersContainer) {
+    //   throw new UnknowElementError();
+    // }
+    // this.controllersContainer = controllersContainer;
   }
 
   onInit() {
+    this.vueInstance.formulasVersionUpdated$.subscribe((formulas) => {
+      const queryParams = mergeObjects(
+        formulas
+          .sort((formulaA, formulaB) =>
+            formulaA.name.localeCompare(formulaB.name)
+          )
+          .map((formula) => ({
+            [formula.name]: this.encoder.encode(formula.content),
+          }))
+      );
+      this.router.navigate(queryParams);
+    });
+
     this.router.queryParams$
       .pipe(
         first(),
@@ -84,82 +115,32 @@ export class Writer implements OnInit {
         )
       )
       .subscribe((queryParams) => {
-        Object.keys(queryParams).forEach((key) => {
-          this.createFormulaField({ key, queryParams });
-        });
+        console.log(queryParams);
+
+        const formulas = Object.keys(queryParams).map(
+          (key) => new Formula(key, queryParams[key])
+        );
+        this.vueInstance.formulas = formulas;
       });
 
-    this.form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      if (this.mobileViewState.active) {
-        this.mobileViewState.opened = false;
-      }
-      const queryParams = mergeObjects(
-        this.textareas
-          .sort((inputA, inputB) => inputA.name.localeCompare(inputB.name))
-          .map((input) => ({ [input.name]: this.encoder.encode(input.value) }))
-      );
-      this.router.navigate(queryParams);
-    });
+    // this.form.addEventListener('submit', (event) => {
+    //   event.preventDefault();
+    //   if (this.mobileViewState.active) {
+    //     this.mobileViewState.opened = false;
+    //   }
+    //   const queryParams = mergeObjects(
+    //     this.textareas
+    //       .sort((inputA, inputB) => inputA.name.localeCompare(inputB.name))
+    //       .map((input) => ({ [input.name]: this.encoder.encode(input.value) }))
+    //   );
+    //   this.router.navigate(queryParams);
+    // });
 
-    const navbarBurgers = this.document.querySelectorAll('.navbar-burger');
-    navbarBurgers.forEach((navbarBurger) => {
-      navbarBurger.addEventListener('click', () => {
-        this.mobileViewState.opened = !this.mobileViewState.opened;
-      });
-    });
-  }
-
-  private createFormulaField({
-    key,
-    queryParams,
-  }: {
-    key: string;
-    queryParams: QueryParams;
-  }) {
-    const div = this.document.createElement('div');
-    div.classList.add('field', 'is-horizontal');
-
-    const fieldLabel = this.document.createElement('div');
-    fieldLabel.classList.add('field-label', 'is-normal');
-    const label = this.document.createElement('label');
-    label.classList.add('label');
-    label.textContent = `${key}(x) =`;
-    label.htmlFor = key;
-    fieldLabel.append(label);
-
-    div.appendChild(fieldLabel);
-    const textarea = this.document.createElement('textarea');
-    textarea.classList.add('textarea');
-    textarea.name = key;
-    const value = queryParams[key];
-    textarea.value = value;
-    textarea.placeholder = 'Formula';
-    textarea.rows = value.split('\n').length;
-    textarea.addEventListener('keypress', (event) => {
-      if (event.code === 'Enter') {
-        if (!event.shiftKey) {
-          event.preventDefault();
-          this.form.dispatchEvent(new SubmitEvent('submit'));
-        }
-      }
-    });
-    textarea.addEventListener('keyup', () => {
-      const rows = textarea.value.split('\n').length;
-      const difference = rows - textarea.rows;
-
-      if (difference !== 0) {
-        for (let i = 0; i < Math.abs(difference); ++i) {
-          if (difference > 0) {
-            textarea.rows++;
-            return;
-          }
-          textarea.rows--;
-        }
-      }
-    });
-    div.appendChild(textarea);
-    this.textareas.push(textarea);
-    this.controllersContainer.prepend(div);
+    // const navbarBurgers = this.document.querySelectorAll('.navbar-burger');
+    // navbarBurgers.forEach((navcontrollersbarBurger) => {
+    //   navbarBurger.addEventListener('click', () => {
+    //     this.mobileViewState.opened = !this.mobileViewState.opened;
+    //   });
+    // });
   }
 }
