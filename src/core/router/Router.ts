@@ -16,13 +16,11 @@ export class Router {
   }
 
   navigate(queryParams: QueryParams) {
-    const url = new URL(this.window.location.origin);
+    const url = new URL(this.window.location.href);
 
     Object.keys(queryParams).forEach((key) => {
       url.searchParams.set(key, queryParams[key]);
     });
-
-    console.log(url);
 
     this.window.history.pushState(
       null,

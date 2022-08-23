@@ -1,4 +1,4 @@
-import { distinctUntilChanged, map } from 'rxjs';
+import { map } from 'rxjs';
 import { ContainerInstance, Service } from 'typedi';
 import { Encoder, OnInit, Router } from '../core';
 import {
@@ -12,15 +12,12 @@ import {
   CanvasState,
   convertXToOffsetX,
   convertYToOffsetY,
-  FORBIDDEN_FUNCTIONS_NAMES,
   getPointsToDrawFromFormulas,
-  QueryParamsAnalyzer,
 } from '../utils';
 
 @Service()
 export class Drawer implements OnInit {
   private readonly router: Router;
-  private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
   private readonly canvas: HTMLCanvasElement;
   private readonly encoder: Encoder;
   private readonly context: CanvasRenderingContext2D;
@@ -33,7 +30,6 @@ export class Drawer implements OnInit {
 
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
-    this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
     this.encoder = container.get(Encoder);
     const window = container.get(Window);
 
@@ -80,17 +76,16 @@ export class Drawer implements OnInit {
     this.router.queryParams$
       .pipe(
         map((queryParams) =>
-          this.queryParamsAnalyzer.getFiltredQueryParams(queryParams, (key) =>
-            FORBIDDEN_FUNCTIONS_NAMES.includes(key)
-          )
-        ),
-        distinctUntilChanged()
+          !!queryParams['ratio']
+            ? this.encoder.decode(queryParams['ratio'])
+            : null
+        )
       )
-      .subscribe((options) => {
-        if (options.hasOwnProperty('ratio') && !!options['ratio']) {
+      .subscribe((ratioAsString) => {
+        if (!!ratioAsString) {
           try {
             const [unitAsString, pixelsPeerUnitAsString] =
-              options['ratio'].split('/');
+              ratioAsString.split('/');
             const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
             this.canvasState.setRatio(newRatio);
           } catch (err) {
@@ -102,12 +97,10 @@ export class Drawer implements OnInit {
     this.router.queryParams$
       .pipe(
         map((queryParams) =>
-          this.queryParamsAnalyzer.getFiltredQueryParams(
-            queryParams,
-            (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)
-          )
-        ),
-        distinctUntilChanged()
+          !!queryParams['formulas']
+            ? JSON.parse(this.encoder.decode(queryParams['formulas']))
+            : {}
+        )
       )
       .subscribe((formulasInQueryParams) => {
         this.formulas = [];
