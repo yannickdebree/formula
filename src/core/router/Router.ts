@@ -6,7 +6,6 @@ import { QueryParams } from './QueryParams';
 @Service()
 export class Router {
   private readonly window: Window;
-  private queryParams?: QueryParams;
   public readonly queryParams$ = new ReplaySubject<QueryParams>(1);
 
   constructor(container: ContainerInstance) {
@@ -42,9 +41,6 @@ export class Router {
       yieldResult = urlSearchParamsEntries.next();
     }
 
-    const queryParams = mergeObjects(result.map((c) => ({ [c[0]]: c[1] })));
-
-    this.queryParams = queryParams;
-    this.queryParams$.next(queryParams);
+    this.queryParams$.next(mergeObjects(result.map((c) => ({ [c[0]]: c[1] }))));
   }
 }

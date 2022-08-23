@@ -13,6 +13,7 @@ import {
   convertXToOffsetX,
   convertYToOffsetY,
   getPointsToDrawFromFormulas,
+  QUERY_PARAMS_KEY,
 } from '../utils';
 
 @Service()
@@ -68,7 +69,7 @@ export class Drawer implements OnInit {
       if (pixelsPeerUnit > 0) {
         const ratioAsString = this.encoder.encode(`${unit}/${pixelsPeerUnit}`);
         this.router.navigate({
-          ratio: ratioAsString,
+          [QUERY_PARAMS_KEY.RATIO]: ratioAsString,
         });
       }
     });
@@ -76,8 +77,8 @@ export class Drawer implements OnInit {
     this.router.queryParams$
       .pipe(
         map((queryParams) =>
-          !!queryParams['ratio']
-            ? this.encoder.decode(queryParams['ratio'])
+          !!queryParams[QUERY_PARAMS_KEY.RATIO]
+            ? this.encoder.decode(queryParams[QUERY_PARAMS_KEY.RATIO])
             : null
         )
       )
@@ -97,8 +98,10 @@ export class Drawer implements OnInit {
     this.router.queryParams$
       .pipe(
         map((queryParams) =>
-          !!queryParams['formulas']
-            ? JSON.parse(this.encoder.decode(queryParams['formulas']))
+          !!queryParams[QUERY_PARAMS_KEY.FORMULAS]
+            ? JSON.parse(
+                this.encoder.decode(queryParams[QUERY_PARAMS_KEY.FORMULAS])
+              )
             : {}
         )
       )
