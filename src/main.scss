@@ -1,0 +1,41 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: hidden;
+
+  main {
+    height: 100%;
+
+    .navbar-burger {
+      z-index: 2;
+      position: fixed;
+    }
+
+    #writer-controller {
+      z-index: 3;
+      height: 100%;
+      width: 100%;
+      max-width: 400px;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    #drawer-controller {
+      width: 100%;
+    }
+
+    @media screen and (max-width: 1000px) {
+      .navbar-burger {
+        visibility: initial;
+      }
+
+      #writer-controller {
+        position: fixed;
+        max-width: 100%;
+        transform: translateY(100%);
+      }
+    }
+  }
+}
