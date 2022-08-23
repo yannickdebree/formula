@@ -3,7 +3,7 @@ import { ContainerInstance, Service } from 'typedi';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
 import { Encoder, OnInit, Router } from '../core';
 import { Formula, UnknowElementError } from '../domain';
-import { mergeObjects, MobileMenuService, QUERY_PARAMS_KEY } from '../utils';
+import { MenuService, mergeObjects, QUERY_PARAMS_KEY } from '../utils';
 import WriterVue from './Writer.vue';
 
 type VueInstance = ComponentPublicInstance<
@@ -12,7 +12,7 @@ type VueInstance = ComponentPublicInstance<
   {
     formulas: Array<Formula>;
     formulasVersionUpdated$: ReplaySubject<Array<Formula>>;
-    mobileMenuService: MobileMenuService;
+    menuService: MenuService;
   },
   {},
   {},
@@ -33,7 +33,7 @@ export class Writer implements OnInit {
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
     this.encoder = container.get(Encoder);
-    const mobileMenuService = container.get(MobileMenuService);
+    const menuService = container.get(MenuService);
     const window = container.get(Window);
 
     const writerDOMRoot =
@@ -46,7 +46,7 @@ export class Writer implements OnInit {
     this.vueInstance = createApp(WriterVue).mount(
       this.writerDOMRoot
     ) as VueInstance;
-    this.vueInstance.mobileMenuService = mobileMenuService;
+    this.vueInstance.menuService = menuService;
   }
 
   onInit() {

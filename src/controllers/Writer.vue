@@ -7,7 +7,7 @@
       aria-expanded="false"
       @click="
         () => {
-          mobileMenuService.setPosition(false);
+          menuService.setPosition(false);
         }
       "
     >
@@ -50,12 +50,12 @@
 <script lang="ts">
 import { ReplaySubject } from 'rxjs';
 import { Formula } from '../domain';
-import { findNextFormulaName, MobileMenuService } from '../utils';
+import { findNextFormulaName, MenuService } from '../utils';
 
 export default {
   data() {
     return {
-      mobileMenuService: MobileMenuService,
+      menuService: MenuService,
       formulas: new Array<{ name: string; content: string }>(),
       formulasVersionUpdated$: new ReplaySubject<Array<Formula>>(1),
     };
