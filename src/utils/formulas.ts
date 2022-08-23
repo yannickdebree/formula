@@ -34,18 +34,17 @@ const alphabet = [
 ];
 
 export function findNextFormulaName(
-  existingFormulas: Array<Formula>,
+  existingNames: Array<string>,
   _alphabet = alphabet
 ): string {
   const alphabetLength = _alphabet.length;
-  const existingNames = existingFormulas.map((formula) => formula.name);
   for (let i = 0; i < alphabetLength; ++i) {
     if (!existingNames.includes(_alphabet[i])) {
       return _alphabet[i];
     }
   }
   return findNextFormulaName(
-    existingFormulas,
+    existingNames,
     alphabet.map((letter) => letter + "'")
   );
 }

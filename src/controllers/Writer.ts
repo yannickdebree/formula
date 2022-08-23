@@ -3,11 +3,7 @@ import { ContainerInstance, Service } from 'typedi';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
 import { Encoder, OnInit, Router } from '../core';
 import { Formula, UnknowElementError } from '../domain';
-import {
-  FORBIDDEN_FUNCTIONS_NAMES,
-  mergeObjects,
-  QueryParamsAnalyzer,
-} from '../utils';
+import { mergeObjects } from '../utils';
 import WriterVue from './Writer.vue';
 
 type VueInstance = ComponentPublicInstance<
@@ -30,7 +26,6 @@ type VueInstance = ComponentPublicInstance<
 export class Writer implements OnInit {
   private readonly router: Router;
   private readonly encoder: Encoder;
-  private readonly queryParamsAnalyzer: QueryParamsAnalyzer;
   private readonly document: Document;
   // private readonly form: HTMLFormElement;
   // private readonly controllersContainer: HTMLDivElement;
@@ -59,7 +54,6 @@ export class Writer implements OnInit {
   constructor(container: ContainerInstance) {
     this.router = container.get(Router);
     this.encoder = container.get(Encoder);
-    this.queryParamsAnalyzer = container.get(QueryParamsAnalyzer);
     const window = container.get(Window);
     this.document = window.document;
 
@@ -88,40 +82,43 @@ export class Writer implements OnInit {
   }
 
   onInit() {
-    this.vueInstance.formulasVersionUpdated$.subscribe((formulas) => {
-      const queryParams = mergeObjects(
-        formulas
-          .sort((formulaA, formulaB) =>
-            formulaA.name.localeCompare(formulaB.name)
-          )
-          .map((formula) => ({
-            [formula.name]: this.encoder.encode(formula.content),
-          }))
+    this.vueInstance.formulasVersionUpdated$.subscribe((_formulas) => {
+      const formulas = mergeObjects(
+        _formulas.map((formula) => ({
+          [formula.name]: formula.content,
+        }))
       );
-      this.router.navigate(queryParams);
+      this.router.navigate({
+        formulas: this.encoder.encode(JSON.stringify(formulas)),
+      });
     });
 
     this.router.queryParams$
       .pipe(
         first(),
         map((queryParams) =>
-          this.queryParamsAnalyzer.getFiltredQueryParams(
-            queryParams,
-            (key) => !FORBIDDEN_FUNCTIONS_NAMES.includes(key)
-          )
+          !!queryParams['formulas']
+            ? JSON.parse(this.encoder.decode(queryParams['formulas']))
+            : {}
         ),
-        map((queryParams) =>
-          Object.keys(queryParams).length > 0 ? queryParams : { f: '' }
+        map((formulas) =>
+          Object.keys(formulas).length > 0 ? formulas : { f: '' }
         )
       )
-      .subscribe((queryParams) => {
-        console.log(queryParams);
-
-        const formulas = Object.keys(queryParams).map(
-          (key) => new Formula(key, queryParams[key])
+      .subscribe((formulas) => {
+        this.vueInstance.formulas = Object.keys(formulas).map(
+          (key) => new Formula(key, formulas[key])
         );
-        this.vueInstance.formulas = formulas;
       });
+
+    this.writerDOMRoot.addEventListener('keypress', (event) => {
+      if (!event.shiftKey && event.key === 'Enter') {
+        event.preventDefault();
+        this.writerDOMRoot
+          .querySelector('form')
+          ?.dispatchEvent(new SubmitEvent('submit'));
+      }
+    });
 
     // this.form.addEventListener('submit', (event) => {
     //   event.preventDefault();
