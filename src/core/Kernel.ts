@@ -1,17 +1,19 @@
 import 'reflect-metadata';
-import Container from 'typedi';
-import { Controller, hasObjectImplementedOnInit } from './controllers';
+import { Controller, hasControllerImplementedOnInit } from './controllers';
+import { Container } from './di';
 
 export class Kernel {
   constructor(private readonly controllers: Array<Controller>) {}
 
   run() {
     window.addEventListener('DOMContentLoaded', () => {
-      Container.set(Window, window);
+      const container = new Container();
+
+      container.registerInstance(Window, window);
 
       this.controllers.forEach((controller) => {
-        const instance = Container.get(controller);
-        if (hasObjectImplementedOnInit(instance)) {
+        const instance = container.get(controller);
+        if (hasControllerImplementedOnInit(instance)) {
           instance.onInit();
         }
       });

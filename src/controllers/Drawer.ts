@@ -1,6 +1,5 @@
 import { map } from 'rxjs';
-import { ContainerInstance, Service } from 'typedi';
-import { Encoder, OnInit, Router } from '../core';
+import { Encoder, Inject, OnInit, Router } from '../core';
 import {
   Formula,
   PixelValue,
@@ -16,11 +15,9 @@ import {
   QUERY_PARAMS_KEY,
 } from '../utils';
 
-@Service()
+@Inject(Router, Encoder, Window)
 export class Drawer implements OnInit {
-  private readonly router: Router;
   private readonly canvas: HTMLCanvasElement;
-  private readonly encoder: Encoder;
   private readonly context: CanvasRenderingContext2D;
   private readonly canvasState: CanvasState;
   private formulas = new Array<Formula>();
@@ -29,11 +26,11 @@ export class Drawer implements OnInit {
     y: new UnitValue(0),
   };
 
-  constructor(container: ContainerInstance) {
-    this.router = container.get(Router);
-    this.encoder = container.get(Encoder);
-    const window = container.get(Window);
-
+  constructor(
+    private readonly router: Router,
+    private readonly encoder: Encoder,
+    window: Window
+  ) {
     const canvas = window.document.querySelector('canvas');
     if (!canvas) {
       throw new UnknowElementError();

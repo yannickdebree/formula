@@ -1,16 +1,14 @@
 import { ReplaySubject } from 'rxjs';
-import { ContainerInstance, Service } from 'typedi';
-import { APPLICATION_NAME, mergeObjects } from '../../utils';
+import { mergeObjects } from '../../utils';
+import { Inject } from '../di';
 import { QueryParams } from './QueryParams';
 
-@Service()
+@Inject(Window)
 export class Router {
-  private readonly window: Window;
+  public readonly url$ = new ReplaySubject<URL>(1);
   public readonly queryParams$ = new ReplaySubject<QueryParams>(1);
 
-  constructor(container: ContainerInstance) {
-    this.window = container.get(Window);
-
+  constructor(private readonly window: Window) {
     this.setQueryParams(this.window.location.search);
   }
 
@@ -21,11 +19,13 @@ export class Router {
       url.searchParams.set(key, queryParams[key]);
     });
 
-    this.window.history.pushState(
-      null,
-      APPLICATION_NAME,
-      url.pathname + url.search
-    );
+    this.url$.next(url);
+
+    // this.window.history.pushState(
+    //   null,
+    //   APPLICATION_NAME,
+    //   url.pathname + url.search
+    // );
 
     this.setQueryParams(url.search);
   }
@@ -41,6 +41,6 @@ export class Router {
       yieldResult = urlSearchParamsEntries.next();
     }
 
-    this.queryParams$.next(mergeObjects(result.map((c) => ({ [c[0]]: c[1] }))));
+    this.queryParams$.next(mergeObjects(result.map((r) => ({ [r[0]]: r[1] }))));
   }
 }
