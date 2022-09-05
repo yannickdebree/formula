@@ -1,13 +1,9 @@
 import { first, map, ReplaySubject } from 'rxjs';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
-import { Encoder, Inject, OnInit, Router } from '../core';
-import { QUERY_PARAMS_KEY } from '../other';
-import {
-  Formula,
-  MenuService,
-  mergeObjects,
-  UnknowElementError,
-} from '../utils';
+import { mergeObjects } from '../core';
+import { Formula, UnknowElementError } from '../domain';
+import { Encoder, Inject, OnInit, Router } from '../system';
+import { MenuState, QUERY_PARAMS_KEY } from '../utils';
 import WriterVue from './Writer.vue';
 
 type VueInstance = ComponentPublicInstance<
@@ -16,7 +12,7 @@ type VueInstance = ComponentPublicInstance<
   {
     formulas: Array<Formula>;
     formulasVersionUpdated$: ReplaySubject<Array<Formula>>;
-    menuService: MenuService;
+    menuState: MenuState;
   },
   {},
   {},
@@ -27,7 +23,7 @@ type VueInstance = ComponentPublicInstance<
   ComponentOptionsBase<any, any, any, any, any, any, any, any, any, {}>
 >;
 
-@Inject(Router, Encoder, MenuService, Window)
+@Inject(Router, Encoder, MenuState, Window)
 export class Writer implements OnInit {
   private readonly writerDOMRoot: HTMLDivElement;
   private readonly vueInstance: VueInstance;
@@ -35,20 +31,20 @@ export class Writer implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly encoder: Encoder,
-    menuService: MenuService,
+    menuState: MenuState,
     window: Window
   ) {
     const writerDOMRoot =
       window.document.querySelector<HTMLDivElement>('#writer-root');
     if (!writerDOMRoot) {
-      throw new UnknowElementError();
+      throw new UnknowElementError('fe');
     }
     this.writerDOMRoot = writerDOMRoot;
 
     this.vueInstance = createApp(WriterVue).mount(
       this.writerDOMRoot
     ) as VueInstance;
-    this.vueInstance.menuService = menuService;
+    this.vueInstance.menuState = menuState;
   }
 
   onInit() {

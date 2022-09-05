@@ -1,5 +1,5 @@
 import { ReplaySubject } from 'rxjs';
-import { mergeObjects } from '../../utils';
+import { mergeObjects } from '../../core';
 import { Inject } from '../di';
 import { QueryParams } from './QueryParams';
 

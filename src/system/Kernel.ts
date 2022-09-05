@@ -12,7 +12,6 @@ export class Kernel {
       container.registerInstance(Window, window);
 
       try {
-        throw new Error();
         this.controllers.forEach((controller) => {
           const instance = container.get(controller);
           if (hasControllerImplementedOnInit(instance)) {

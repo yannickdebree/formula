@@ -1,7 +1,8 @@
-import { Inject, OnInit } from '../core';
-import { MenuService, UnknowElementError } from '../other';
+import { UnknowElementError } from '../domain';
+import { Inject, OnInit } from '../system';
+import { MenuState } from '../utils';
 
-@Inject(MenuService, Window)
+@Inject(MenuState, Window)
 export class Menu implements OnInit {
   private readonly navbarBurger: Element;
   private readonly writerDOMRoot: HTMLDivElement;
@@ -24,8 +25,8 @@ export class Menu implements OnInit {
     }
   );
 
-  constructor(menuService: MenuService, window: Window) {
-    menuService.positionChanged$.subscribe((opened) => {
+  constructor(menuState: MenuState, window: Window) {
+    menuState.positionChanged$.subscribe((opened) => {
       this.mobileViewState.opened = opened;
     });
     const selectors = '.navbar-burger';
@@ -38,7 +39,7 @@ export class Menu implements OnInit {
     const writerDOMRoot =
       window.document.querySelector<HTMLDivElement>('#writer-root');
     if (!writerDOMRoot) {
-      throw new UnknowElementError();
+      throw new UnknowElementError('test');
     }
     this.writerDOMRoot = writerDOMRoot;
   }
