@@ -1,6 +1,5 @@
 import { Inject, OnInit } from '../core';
-import { UnknowElementError } from '../domain';
-import { MenuService } from '../utils';
+import { MenuService, UnknowElementError } from '../utils';
 
 @Inject(MenuService, Window)
 export class Menu implements OnInit {

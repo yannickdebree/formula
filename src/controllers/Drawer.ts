@@ -1,18 +1,16 @@
 import { map } from 'rxjs';
 import { Encoder, Inject, OnInit, Router } from '../core';
-import {
-  Formula,
-  PixelValue,
-  Ratio,
-  UnitValue,
-  UnknowElementError,
-} from '../domain';
+import { QUERY_PARAMS_KEY } from '../other';
 import {
   CanvasState,
   convertXToOffsetX,
   convertYToOffsetY,
+  Formula,
   getPointsToDrawFromFormulas,
-  QUERY_PARAMS_KEY,
+  PixelValue,
+  Ratio,
+  UnitValue,
+  UnknowElementError,
 } from '../utils';
 
 @Inject(Router, Encoder, Window)
