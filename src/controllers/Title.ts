@@ -1,7 +1,7 @@
 import { Inject, OnInit, Router } from '../system';
 import { APPLICATION_NAME } from '../utils';
 
-@Inject(Router)
+@Inject(Router, Window)
 export class Title implements OnInit {
   constructor(
     private readonly router: Router,

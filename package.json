@@ -15,6 +15,7 @@
     "@typescript-eslint/parser": "^5.33.0",
     "@vitejs/plugin-vue": "^3.0.3",
     "aurelia-dependency-injection": "^1.5.2",
+    "bulma": "^0.9.4",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.2",
