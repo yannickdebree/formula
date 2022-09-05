@@ -49,8 +49,7 @@
 
 <script lang="ts">
 import { ReplaySubject } from 'rxjs';
-import { Formula } from '../domain';
-import { findNextFormulaName, MenuService } from '../utils';
+import { Formula, findNextFormulaName, MenuService } from '../utils';
 
 export default {
   data() {

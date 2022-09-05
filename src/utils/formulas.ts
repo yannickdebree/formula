@@ -1,6 +1,7 @@
-import { Formula, PixelValue } from '../domain';
 import { CanvasState } from './CanvasState';
 import { convertOffsetXToX, convertYToOffsetY } from './conversion';
+import { Formula } from './Formula';
+import { PixelValue } from './PixelValue';
 import { PointToDraw } from './PointToDraw';
 
 const alphabet = [

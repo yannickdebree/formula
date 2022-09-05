@@ -1,5 +1,6 @@
-import { PixelValue, UnitValue } from '../domain';
 import { CanvasState } from './CanvasState';
+import { PixelValue } from './PixelValue';
+import { UnitValue } from './UnitValue';
 
 export function convertOffsetXToX(
   offsetX: PixelValue,

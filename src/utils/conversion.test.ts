@@ -1,4 +1,3 @@
-import { PixelValue, Ratio, UnitValue } from '../domain';
 import { CanvasState } from './CanvasState';
 import {
   convertOffsetXToX,
@@ -6,6 +5,9 @@ import {
   convertXToOffsetX,
   convertYToOffsetY,
 } from './conversion';
+import { PixelValue } from './PixelValue';
+import { Ratio } from './Ratio';
+import { UnitValue } from './UnitValue';
 
 function runTests<Test>(tests: Array<Test>, fn: (test: Test) => void) {
   tests.forEach((test) => {

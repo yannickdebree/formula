@@ -21,12 +21,6 @@ export class Router {
 
     this.url$.next(url);
 
-    // this.window.history.pushState(
-    //   null,
-    //   APPLICATION_NAME,
-    //   url.pathname + url.search
-    // );
-
     this.setQueryParams(url.search);
   }
 
