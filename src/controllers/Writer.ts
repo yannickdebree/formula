@@ -1,7 +1,6 @@
 import { first, map, ReplaySubject } from 'rxjs';
-import { ContainerInstance, Service } from 'typedi';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
-import { Encoder, OnInit, Router } from '../core';
+import { Encoder, Inject, OnInit, Router } from '../core';
 import { Formula, UnknowElementError } from '../domain';
 import { MenuService, mergeObjects, QUERY_PARAMS_KEY } from '../utils';
 import WriterVue from './Writer.vue';
@@ -23,19 +22,17 @@ type VueInstance = ComponentPublicInstance<
   ComponentOptionsBase<any, any, any, any, any, any, any, any, any, {}>
 >;
 
-@Service()
+@Inject(Router, Encoder, MenuService, Window)
 export class Writer implements OnInit {
-  private readonly router: Router;
-  private readonly encoder: Encoder;
   private readonly writerDOMRoot: HTMLDivElement;
   private readonly vueInstance: VueInstance;
 
-  constructor(container: ContainerInstance) {
-    this.router = container.get(Router);
-    this.encoder = container.get(Encoder);
-    const menuService = container.get(MenuService);
-    const window = container.get(Window);
-
+  constructor(
+    private readonly router: Router,
+    private readonly encoder: Encoder,
+    menuService: MenuService,
+    window: Window
+  ) {
     const writerDOMRoot =
       window.document.querySelector<HTMLDivElement>('#writer-root');
     if (!writerDOMRoot) {

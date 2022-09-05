@@ -1,9 +1,8 @@
-import { ContainerInstance, Service } from 'typedi';
-import { OnInit } from '../core';
+import { Inject, OnInit } from '../core';
 import { UnknowElementError } from '../domain';
 import { MenuService } from '../utils';
 
-@Service()
+@Inject(MenuService, Window)
 export class Menu implements OnInit {
   private readonly navbarBurger: Element;
   private readonly writerDOMRoot: HTMLDivElement;
@@ -26,12 +25,10 @@ export class Menu implements OnInit {
     }
   );
 
-  constructor(container: ContainerInstance) {
-    const menuService = container.get(MenuService);
+  constructor(menuService: MenuService, window: Window) {
     menuService.positionChanged$.subscribe((opened) => {
       this.mobileViewState.opened = opened;
     });
-    const window = container.get(Window);
     const navbarBurger = window.document.querySelector('.navbar-burger');
     if (!navbarBurger) {
       throw new UnknowElementError();
