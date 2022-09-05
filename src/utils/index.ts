@@ -1,1 +1,1 @@
-export * from './objects';
+export * from './public_api';

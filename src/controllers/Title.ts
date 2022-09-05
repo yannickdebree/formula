@@ -1,5 +1,5 @@
-import { Inject, OnInit, Router } from '../core';
-import { APPLICATION_NAME } from '../other';
+import { Inject, OnInit, Router } from '../system';
+import { APPLICATION_NAME } from '../utils';
 
 @Inject(Router)
 export class Title implements OnInit {

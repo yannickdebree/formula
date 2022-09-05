@@ -49,12 +49,13 @@
 
 <script lang="ts">
 import { ReplaySubject } from 'rxjs';
-import { Formula, findNextFormulaName, MenuService } from '../utils';
+import { Formula, findNextFormulaName } from '../domain';
+import { MenuState } from '../utils';
 
 export default {
   data() {
     return {
-      menuService: MenuService,
+      menuState: MenuState,
       formulas: new Array<{ name: string; content: string }>(),
       formulasVersionUpdated$: new ReplaySubject<Array<Formula>>(1),
     };
