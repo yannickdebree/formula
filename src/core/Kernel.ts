@@ -11,12 +11,17 @@ export class Kernel {
 
       container.registerInstance(Window, window);
 
-      this.controllers.forEach((controller) => {
-        const instance = container.get(controller);
-        if (hasControllerImplementedOnInit(instance)) {
-          instance.onInit();
-        }
-      });
+      try {
+        throw new Error();
+        this.controllers.forEach((controller) => {
+          const instance = container.get(controller);
+          if (hasControllerImplementedOnInit(instance)) {
+            instance.onInit();
+          }
+        });
+      } catch (err) {
+        console.error('KERNEL ERROR: ', err);
+      }
     });
   }
 }

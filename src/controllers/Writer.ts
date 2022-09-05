@@ -1,11 +1,11 @@
 import { first, map, ReplaySubject } from 'rxjs';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
 import { Encoder, Inject, OnInit, Router } from '../core';
+import { QUERY_PARAMS_KEY } from '../other';
 import {
   Formula,
   MenuService,
   mergeObjects,
-  QUERY_PARAMS_KEY,
   UnknowElementError,
 } from '../utils';
 import WriterVue from './Writer.vue';

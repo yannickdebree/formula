@@ -1,5 +1,5 @@
 import { Inject, OnInit } from '../core';
-import { MenuService, UnknowElementError } from '../utils';
+import { MenuService, UnknowElementError } from '../other';
 
 @Inject(MenuService, Window)
 export class Menu implements OnInit {
@@ -28,9 +28,10 @@ export class Menu implements OnInit {
     menuService.positionChanged$.subscribe((opened) => {
       this.mobileViewState.opened = opened;
     });
-    const navbarBurger = window.document.querySelector('.navbar-burger');
+    const selectors = '.navbar-burger';
+    const navbarBurger = window.document.querySelector(selectors);
     if (!navbarBurger) {
-      throw new UnknowElementError();
+      throw new UnknowElementError(selectors);
     }
     this.navbarBurger = navbarBurger;
 

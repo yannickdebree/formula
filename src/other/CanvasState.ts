@@ -1,4 +1,4 @@
-import { PixelValue, Ratio } from '../domain';
+import { PixelValue, Ratio } from '.';
 
 export class CanvasState {
   constructor(
