@@ -1,6 +1,5 @@
 import { map } from 'rxjs';
 import { Encoder, Inject, OnInit, Router } from '../core';
-import { QUERY_PARAMS_KEY } from '../other';
 import {
   CanvasState,
   convertXToOffsetX,
@@ -8,10 +7,11 @@ import {
   Formula,
   getPointsToDrawFromFormulas,
   PixelValue,
+  QUERY_PARAMS_KEY,
   Ratio,
   UnitValue,
   UnknowElementError,
-} from '../utils';
+} from '../other';
 
 @Inject(Router, Encoder, Window)
 export class Drawer implements OnInit {
@@ -31,13 +31,14 @@ export class Drawer implements OnInit {
   ) {
     const canvas = window.document.querySelector('canvas');
     if (!canvas) {
-      throw new UnknowElementError();
+      throw new UnknowElementError('canvas');
     }
     this.canvas = canvas;
 
     const context = this.canvas.getContext('2d');
     if (!context) {
-      throw new UnknowElementError();
+      // throw new UnknowElementError()
+      throw new Error();
     }
     this.context = context;
 
