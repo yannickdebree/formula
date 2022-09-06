@@ -1,4 +1,4 @@
-export * from './Drawer';
-export * from './Menu';
-export * from './Title';
-export * from './Writer';
+export { Drawer } from './Drawer';
+export { Menu } from './Menu';
+export { Title } from './Title';
+export { Writer } from './Writer';

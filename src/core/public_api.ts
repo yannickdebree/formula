@@ -1,1 +1,1 @@
-export * from './objects';
+export { mergeObjects } from './objects';

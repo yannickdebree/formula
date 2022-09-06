@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import { Controller, hasControllerImplementedOnInit } from './controllers';
 import { Container } from './di';
 import { ErrorHandler, KernelErrorHandler } from './errors';
-import { Provider } from './Provider';
-import { CUSTOM_ERROR_HANDLER } from './providers_tokens';
+import { isClassProvider, isValueProvider, Provider } from './Provider';
+import { ERROR_HANDLER } from './providers_tokens';
 
 interface KernelOptions {
   controllers: Array<Controller>;
@@ -23,20 +23,34 @@ export class Kernel {
           useValue: window,
         },
         {
-          token: CUSTOM_ERROR_HANDLER,
+          token: ERROR_HANDLER,
           useClass: KernelErrorHandler,
         },
       ] as Array<Provider>;
 
-      providers.forEach((provider) => {
-        // if (!!provider.useValue) {
-        // container.registerInstance(provider.token, provider.useValue);
-        // } else if (!!provider.useClass) {
-        //   container.registerInstance(provider.token, provider.useValue);
-        // }
+      this.options.providers?.forEach((provider) => {
+        const index = providers.findIndex((p) => p.token === provider.token);
+        if (index !== -1) {
+          providers[index] = provider;
+        }
       });
 
-      const errorHandler = container.get(CUSTOM_ERROR_HANDLER) as ErrorHandler;
+      providers.forEach((provider) => {
+        if (isClassProvider(provider)) {
+          container.registerTransient(
+            provider.token,
+            (provider as any).useClass
+          );
+        }
+        if (isValueProvider(provider)) {
+          container.registerInstance(
+            provider.token,
+            (provider as any).useValue
+          );
+        }
+      });
+
+      const errorHandler = container.get(ERROR_HANDLER) as ErrorHandler;
 
       try {
         this.options.controllers.forEach((controller) => {
