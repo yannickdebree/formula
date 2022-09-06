@@ -1,4 +1,4 @@
 export { Drawer } from './Drawer';
+export { History } from './History';
 export { Menu } from './Menu';
-export { Title } from './Title';
 export { Writer } from './Writer';
