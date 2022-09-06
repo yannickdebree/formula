@@ -29,17 +29,18 @@ export class Menu implements OnInit {
     menuState.positionChanged$.subscribe((opened) => {
       this.mobileViewState.opened = opened;
     });
-    const selectors = '.navbar-burger';
+    let selectors = '.navbar-burgerr';
     const navbarBurger = window.document.querySelector(selectors);
     if (!navbarBurger) {
       throw new UnknowElementError(selectors);
     }
     this.navbarBurger = navbarBurger;
 
+    selectors = '#writer-root';
     const writerDOMRoot =
-      window.document.querySelector<HTMLDivElement>('#writer-root');
+      window.document.querySelector<HTMLDivElement>(selectors);
     if (!writerDOMRoot) {
-      throw new UnknowElementError('test');
+      throw new UnknowElementError(selectors);
     }
     this.writerDOMRoot = writerDOMRoot;
   }

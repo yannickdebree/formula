@@ -87,7 +87,7 @@ export async function draw(
   center: UnitValuePoint,
   formulas: Array<Formula>
 ) {
-  const result = await Promise.all([
+  const [, pointsToDraw] = await Promise.all([
     new Promise<void>((resolve) => {
       context.clearRect(
         0,
@@ -99,14 +99,9 @@ export async function draw(
       resolve();
     }),
     getPointsToDrawFromFormulas(formulas, canvasState),
-  ]).catch(() => {
-    alert('Invalid operation');
-  });
+  ]);
 
-  if (Array.isArray(result)) {
-    const [, pointsToDraw] = result;
-    pointsToDraw.forEach(({ x, y }) => {
-      context.fillRect(x, y, 1, 1);
-    });
-  }
+  pointsToDraw.forEach(({ x, y }) => {
+    context.fillRect(x, y, 1, 1);
+  });
 }
