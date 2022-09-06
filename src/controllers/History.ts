@@ -2,7 +2,7 @@ import { Inject, OnInit, Router } from '../system';
 import { APPLICATION_NAME } from '../utils';
 
 @Inject(Router, Window)
-export class Title implements OnInit {
+export class History implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly window: Window
