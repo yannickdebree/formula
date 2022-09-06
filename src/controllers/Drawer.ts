@@ -1,15 +1,21 @@
 import { map } from 'rxjs';
 import {
   CanvasState,
+  Context2DNotAvailableError,
   draw,
   Formula,
   PixelValue,
   Ratio,
   UnitValue,
   UnitValuePoint,
-  UnknowElementError,
 } from '../domain';
-import { Encoder, Inject, OnInit, Router } from '../system';
+import {
+  Encoder,
+  Inject,
+  OnInit,
+  Router,
+  UnknowDOMElementError,
+} from '../system';
 import { QUERY_PARAMS_KEY } from '../utils';
 
 @Inject(Router, Encoder, Window)
@@ -27,13 +33,13 @@ export class Drawer implements OnInit {
   ) {
     const canvas = window.document.querySelector('canvas');
     if (!canvas) {
-      throw new UnknowElementError('canvas');
+      throw new UnknowDOMElementError('canvas');
     }
     this.canvas = canvas;
 
     const context = this.canvas.getContext('2d');
     if (!context) {
-      throw new UnknowElementError('2d');
+      throw new Context2DNotAvailableError();
     }
     this.context = context;
 
@@ -75,14 +81,10 @@ export class Drawer implements OnInit {
       )
       .subscribe((ratioAsString) => {
         if (!!ratioAsString) {
-          try {
-            const [unitAsString, pixelsPeerUnitAsString] =
-              ratioAsString.split('/');
-            const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
-            this.canvasState.setRatio(newRatio);
-          } catch (err) {
-            alert('Ratio implementation error');
-          }
+          const [unitAsString, pixelsPeerUnitAsString] =
+            ratioAsString.split('/');
+          const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
+          this.canvasState.setRatio(newRatio);
         }
       });
 

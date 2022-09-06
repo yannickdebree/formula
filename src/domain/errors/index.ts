@@ -1,2 +1,2 @@
+export * from './Context2DNotAvailableError';
 export * from './ImpossibleOperationError';
-export * from './UnknowElementError';

@@ -1,8 +1,14 @@
 import { first, map, ReplaySubject } from 'rxjs';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
 import { mergeObjects } from '../core';
-import { Formula, UnknowElementError } from '../domain';
-import { Encoder, Inject, OnInit, Router } from '../system';
+import { Formula } from '../domain';
+import {
+  Encoder,
+  Inject,
+  OnInit,
+  Router,
+  UnknowDOMElementError,
+} from '../system';
 import { MenuState, QUERY_PARAMS_KEY } from '../utils';
 import WriterVue from './Writer.vue';
 
@@ -34,10 +40,11 @@ export class Writer implements OnInit {
     menuState: MenuState,
     window: Window
   ) {
+    const selectors = '#writer-root';
     const writerDOMRoot =
-      window.document.querySelector<HTMLDivElement>('#writer-root');
+      window.document.querySelector<HTMLDivElement>(selectors);
     if (!writerDOMRoot) {
-      throw new UnknowElementError('fe');
+      throw new UnknowDOMElementError(selectors);
     }
     this.writerDOMRoot = writerDOMRoot;
 

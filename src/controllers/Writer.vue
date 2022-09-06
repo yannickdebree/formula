@@ -7,7 +7,7 @@
       aria-expanded="false"
       @click="
         () => {
-          menuService.setPosition(false);
+          menuState.setPosition(false);
         }
       "
     >
@@ -67,16 +67,12 @@ export default {
       this.formulasVersionUpdated$.next(this.formulas);
     },
     registerNewFormula() {
-      try {
-        this.formulas.push(
-          new Formula(
-            findNextFormulaName(this.formulas.map((formula) => formula.name)),
-            ''
-          )
-        );
-      } catch (err) {
-        alert('Impossible operation');
-      }
+      this.formulas.push(
+        new Formula(
+          findNextFormulaName(this.formulas.map((formula) => formula.name)),
+          ''
+        )
+      );
     },
     removeFormula(index: number) {
       if (index === 0) {

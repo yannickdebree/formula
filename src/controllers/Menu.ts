@@ -1,5 +1,4 @@
-import { UnknowElementError } from '../domain';
-import { Inject, OnInit } from '../system';
+import { Inject, OnInit, UnknowDOMElementError } from '../system';
 import { MenuState } from '../utils';
 
 @Inject(MenuState, Window)
@@ -29,10 +28,10 @@ export class Menu implements OnInit {
     menuState.positionChanged$.subscribe((opened) => {
       this.mobileViewState.opened = opened;
     });
-    let selectors = '.navbar-burgerr';
+    let selectors = '.navbar-burger';
     const navbarBurger = window.document.querySelector(selectors);
     if (!navbarBurger) {
-      throw new UnknowElementError(selectors);
+      throw new UnknowDOMElementError(selectors);
     }
     this.navbarBurger = navbarBurger;
 
@@ -40,7 +39,7 @@ export class Menu implements OnInit {
     const writerDOMRoot =
       window.document.querySelector<HTMLDivElement>(selectors);
     if (!writerDOMRoot) {
-      throw new UnknowElementError(selectors);
+      throw new UnknowDOMElementError(selectors);
     }
     this.writerDOMRoot = writerDOMRoot;
   }
