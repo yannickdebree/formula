@@ -1,4 +1,4 @@
-import { Drawer, Menu, Title, Writer } from './controllers';
+import { Menu } from './controllers';
 import { Kernel } from './system';
 
-new Kernel([Writer, Drawer, Menu, Title]).run();
+new Kernel({ controllers: [Menu] }).run();
