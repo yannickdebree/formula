@@ -4,6 +4,6 @@ type SnackbarOptions = {
 
 export class Snackbar {
   open(options: SnackbarOptions) {
-    console.log(options);
+    alert(options.message);
   }
 }
