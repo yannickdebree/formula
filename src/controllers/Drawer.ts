@@ -80,12 +80,10 @@ export class Drawer implements OnInit {
         )
       )
       .subscribe((ratioAsString) => {
-        if (!!ratioAsString) {
-          const [unitAsString, pixelsPeerUnitAsString] =
-            ratioAsString.split('/');
-          const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
-          this.canvasState.setRatio(newRatio);
-        }
+        if (!ratioAsString) return;
+        const [unitAsString, pixelsPeerUnitAsString] = ratioAsString.split('/');
+        const newRatio = new Ratio(+unitAsString, +pixelsPeerUnitAsString);
+        this.canvasState.setRatio(newRatio);
       });
 
     this.router.queryParams$

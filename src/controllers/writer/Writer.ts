@@ -1,25 +1,22 @@
-import { first, map, ReplaySubject } from 'rxjs';
+import { first, map } from 'rxjs';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
-import { mergeObjects } from '../core';
-import { Formula } from '../domain';
+import { mergeObjects } from '../../core';
+import { findNextFormulaName, Formula } from '../../domain';
 import {
   Encoder,
   Inject,
   OnInit,
   Router,
   UnknowDOMElementError,
-} from '../system';
-import { MenuState, QUERY_PARAMS_KEY } from '../utils';
+} from '../../system';
+import { MenuState, QUERY_PARAMS_KEY } from '../../utils';
 import WriterVue from './Writer.vue';
+import { WriterVueState } from './WriterVueState';
 
 type VueInstance = ComponentPublicInstance<
   {},
   {},
-  {
-    formulas: Array<Formula>;
-    formulasVersionUpdated$: ReplaySubject<Array<Formula>>;
-    menuState: MenuState;
-  },
+  WriterVueState,
   {},
   {},
   {},
@@ -52,12 +49,27 @@ export class Writer implements OnInit {
       this.writerDOMRoot
     ) as VueInstance;
     this.vueInstance.menuState = menuState;
-  }
-
-  onInit() {
-    this.vueInstance.formulasVersionUpdated$.subscribe((_formulas) => {
+    this.vueInstance.createFormula = () => {
+      const formulas = [...this.vueInstance.formulas];
+      this.vueInstance.formulas = this.vueInstance.formulas.concat([
+        new Formula(
+          findNextFormulaName(formulas.map((formula) => formula.name)),
+          ''
+        ),
+      ]);
+    };
+    this.vueInstance.removeFormula = (index) => {
+      const formulas = [...this.vueInstance.formulas];
+      if (this.vueInstance.formulas.length === 1) {
+        formulas[0] = { ...formulas[0], content: '' };
+        this.vueInstance.formulas = formulas;
+        return;
+      }
+      this.vueInstance.formulas = formulas.filter((_, i) => i !== index);
+    };
+    this.vueInstance.submit = () => {
       const formulas = mergeObjects(
-        _formulas.map((formula) => ({
+        this.vueInstance.formulas.map((formula) => ({
           [formula.name]: formula.content,
         }))
       );
@@ -66,8 +78,10 @@ export class Writer implements OnInit {
           JSON.stringify(formulas)
         ),
       });
-    });
+    };
+  }
 
+  onInit() {
     this.router.queryParams$
       .pipe(
         first(),
@@ -88,12 +102,16 @@ export class Writer implements OnInit {
         );
       });
 
+    const selectors = 'form';
+    const form = this.writerDOMRoot.querySelector(selectors);
+    if (!form) {
+      throw new UnknowDOMElementError(selectors);
+    }
+
     this.writerDOMRoot.addEventListener('keypress', (event) => {
       if (!event.shiftKey && event.key === 'Enter') {
         event.preventDefault();
-        this.writerDOMRoot
-          .querySelector('form')
-          ?.dispatchEvent(new SubmitEvent('submit'));
+        form.dispatchEvent(new SubmitEvent('submit'));
       }
     });
   }

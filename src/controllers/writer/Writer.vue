@@ -7,7 +7,7 @@
       aria-expanded="false"
       @click="
         () => {
-          menuState.setPosition(false);
+          menuState?.setPosition(false);
         }
       "
     >
@@ -35,9 +35,13 @@
           v-model="formula.content"
           placeholder="Formula"
         ></textarea>
-        <button class="delete is-medium" @click="removeFormula(index)"></button>
+        <button
+          class="delete is-medium"
+          type="button"
+          @click="removeFormula(index)"
+        ></button>
       </div>
-      <button class="button is-small" type="button" @click="registerNewFormula">
+      <button class="button is-small" type="button" @click="createFormula">
         New formula
       </button>
     </div>
@@ -48,38 +52,23 @@
 </template>
 
 <script lang="ts">
-import { ReplaySubject } from 'rxjs';
-import { Formula, findNextFormulaName } from '../domain';
-import { MenuState } from '../utils';
+import { Formula } from '../../domain';
+import { WriterVueState } from './WriterVueState';
 
 export default {
   data() {
     return {
-      menuState: MenuState,
-      formulas: new Array<{ name: string; content: string }>(),
-      formulasVersionUpdated$: new ReplaySubject<Array<Formula>>(1),
-    };
+      formulas: new Array<Formula>(),
+      menuState: undefined,
+      createFormula: undefined,
+      removeFormula: undefined,
+      submit: undefined,
+    } as WriterVueState;
   },
-  emits: ['formulas'],
   methods: {
     onSubmit(event: SubmitEvent) {
       event.preventDefault();
-      this.formulasVersionUpdated$.next(this.formulas);
-    },
-    registerNewFormula() {
-      this.formulas.push(
-        new Formula(
-          findNextFormulaName(this.formulas.map((formula) => formula.name)),
-          ''
-        )
-      );
-    },
-    removeFormula(index: number) {
-      if (index === 0) {
-        this.formulas[index].content = '';
-        return;
-      }
-      this.formulas.splice(index, 1);
+      !!this.submit && this.submit();
     },
   },
 };
