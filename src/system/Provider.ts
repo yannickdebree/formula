@@ -4,7 +4,7 @@ type ClassProvider<T = any, C = unknown> = {
 };
 
 export function isClassProvider(provider: Provider) {
-  return !!(provider as any)['useClass'];
+  return provider.hasOwnProperty('useClass');
 }
 
 type ValueProvider<T = any, V = unknown> = {
@@ -13,7 +13,7 @@ type ValueProvider<T = any, V = unknown> = {
 };
 
 export function isValueProvider(provider: Provider) {
-  return !!(provider as any)['useValue'];
+  return provider.hasOwnProperty('useValue');
 }
 
 export type Provider = ClassProvider | ValueProvider;
