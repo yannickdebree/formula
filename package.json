@@ -2,7 +2,8 @@
   "scripts": {
     "start": "vite",
     "build": "vite build --base /formula/",
-    "test": "jest --watchAll",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
     "format": "prettier --write .",
     "lint": "eslint .",
     "prepare": "husky install"

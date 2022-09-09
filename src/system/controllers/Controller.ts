@@ -1,1 +1,3 @@
-export type Controller = new (...args: any[]) => any;
+import { ClassType } from '../../core';
+
+export type Controller = ClassType<any>;

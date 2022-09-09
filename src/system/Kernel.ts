@@ -17,7 +17,8 @@ export class Kernel {
     window.addEventListener('DOMContentLoaded', () => {
       const container = new Container();
 
-      const providers = [
+      const providers = new Array<Provider>();
+      providers.push(
         {
           token: Window,
           useValue: window,
@@ -25,8 +26,8 @@ export class Kernel {
         {
           token: ERROR_HANDLER,
           useClass: KernelErrorHandler,
-        },
-      ] as Array<Provider>;
+        }
+      );
 
       this.options.providers?.forEach((provider) => {
         const index = providers.findIndex((p) => p.token === provider.token);
