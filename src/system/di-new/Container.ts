@@ -11,27 +11,13 @@ import {
 export class Container {
   private providers = new Array<Provider<any, any>>();
 
-  set<T, V>(token: T, _value?: V) {
-    const value = _value || token;
-
-    let newProvider: Provider<any, any> = {
-      token,
-      useValue: value,
-    };
-
-    if (isClass(value)) {
-      newProvider = {
-        token,
-        useClass: value,
-      };
-    }
-
-    this.providers.push(newProvider);
-  }
-
   get<T>(token: ClassType<T>): T;
   get<T = unknown>(token: any): T;
   get(token: any) {
+    if (!!token._deps) {
+      this.set(token);
+    }
+
     const providersLength = this.providers.length;
     for (let i = 0; i < providersLength; ++i) {
       const provider = this.providers[i];
@@ -46,5 +32,23 @@ export class Container {
     }
 
     throw new ProviderNotFoundError();
+  }
+
+  set<T, V>(token: T, value?: V) {
+    const _value = value || token;
+
+    let newProvider: Provider<any, any> = {
+      token,
+      useValue: _value,
+    };
+
+    if (isClass(_value)) {
+      newProvider = {
+        token,
+        useClass: _value,
+      };
+    }
+
+    this.providers.push(newProvider);
   }
 }

@@ -11,6 +11,7 @@ describe(Container.name, () => {
   beforeEach(() => {
     container = new Container();
   });
+
   it('Cannot get unsaved class instance', () => {
     try {
       container.get(UnsavedClass);
