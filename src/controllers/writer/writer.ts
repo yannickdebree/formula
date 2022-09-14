@@ -2,7 +2,11 @@ import { first, map } from 'rxjs';
 import { ComponentOptionsBase, ComponentPublicInstance, createApp } from 'vue';
 
 import { mergeObjects } from '../../core';
-import { CalculusFactory, findNextFormulaName, Formula } from '../../domain';
+import {
+  CalculusTreeFactory,
+  findNextFormulaName,
+  Formula,
+} from '../../domain';
 import {
   Encoder,
   Inject,
@@ -28,7 +32,7 @@ type VueInstance = ComponentPublicInstance<
   ComponentOptionsBase<any, any, any, any, any, any, any, any, any, {}>
 >;
 
-@Inject(Router, Encoder, MenuState, Window, CalculusFactory)
+@Inject(Router, Encoder, MenuState, Window, CalculusTreeFactory)
 export class Writer implements OnInit {
   private readonly writerDOMRoot: HTMLDivElement;
   private readonly vueInstance: VueInstance;
@@ -38,7 +42,7 @@ export class Writer implements OnInit {
     private readonly encoder: Encoder,
     menuState: MenuState,
     window: Window,
-    calculusFactory: CalculusFactory
+    calculusFactory: CalculusTreeFactory
   ) {
     const selectors = '#writer-root';
     const writerDOMRoot =
