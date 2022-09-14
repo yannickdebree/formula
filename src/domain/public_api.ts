@@ -1,4 +1,4 @@
-export { CalculusFactory } from './CalculusFactory';
+export { CalculusTreeFactory } from './CalculusTreeFactory';
 export { CanvasState } from './CanvasState';
 export { draw, drawDefaultMark } from './drawing';
 export { Context2DNotAvailableError, ImpossibleOperationError } from './errors';

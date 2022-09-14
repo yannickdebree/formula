@@ -54,7 +54,7 @@
 
 <script lang="ts">
 import {
-  CalculusFactory,
+  CalculusTreeFactory,
   Formula,
   ImpossibleOperationError,
 } from '../../domain';
@@ -78,7 +78,7 @@ export default {
     },
     onFormulaUpdated() {
       this.formulas.forEach((formula, index) => {
-        const { right } = CalculusFactory.fromFormula(formula);
+        const { right } = CalculusTreeFactory.fromFormula(formula);
         if (!!right && right instanceof ImpossibleOperationError) {
           this.errorMessages[index] = 'Error';
         }
