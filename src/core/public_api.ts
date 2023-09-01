@@ -1,1 +1,3 @@
-export { mergeObjects } from './objects';
+import { mergeObjects } from "./objects";
+
+export { mergeObjects };

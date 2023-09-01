@@ -1,1 +1,0 @@
-export const ERROR_HANDLER = 'ERROR_HANDLER';

@@ -1,8 +1,8 @@
-import { CanvasState } from './CanvasState';
+import CanvasState from './canvas.state';
+import Formula from './formula';
 import { convertOffsetXToX, convertYToOffsetY } from './conversion';
-import { Formula } from './Formula';
-import { PixelValue } from './PixelValue';
-import { PointToDraw } from './PointToDraw';
+import PixelValue from './pixel.value';
+import PointToDraw from './point-to-draw';
 
 const alphabet = [
   'f',
@@ -53,7 +53,7 @@ export function findNextFormulaName(
 export function getPointsToDrawFromFormula(
   formula: Formula,
   canvasState: CanvasState
-) {
+): Promise<PointToDraw[]> {
   return new Promise<Array<PointToDraw>>((resolve) => {
     const pointsToDraw = new Array<PointToDraw>();
 
@@ -86,7 +86,7 @@ export function getPointsToDrawFromFormula(
 export function getPointsToDrawFromFormulas(
   formulas: Array<Formula>,
   canvasState: CanvasState
-) {
+): Promise<PointToDraw[]> {
   return Promise.all(
     formulas.map((formula) => getPointsToDrawFromFormula(formula, canvasState))
   ).then((pointsToDraw) =>

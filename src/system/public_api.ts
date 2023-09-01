@@ -1,7 +1,18 @@
-export * from './controllers';
-export { Inject } from './di';
-export { Encoder } from './Encoder';
-export * from './errors';
-export { Kernel } from './Kernel';
-export { ERROR_HANDLER } from './providers_tokens';
-export * from './router';
+import Inject from "./di/inject";
+import Encoder from "./encoder";
+import Kernel from "./kernel";
+import { ERROR_HANDLER_PROVIDER_TOKEN } from "./providers.tokens";
+import Router from "./router/router";
+import UnknowDOMElementError from "./errors/unknow-dom-element.error";
+
+export {
+    ERROR_HANDLER_PROVIDER_TOKEN,
+    Encoder,
+    UnknowDOMElementError,
+    Kernel,
+    Router,
+    Inject,
+}
+
+export * from "./controllers/on-init";
+export * from "./errors/types";

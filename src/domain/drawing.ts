@@ -1,16 +1,16 @@
+import CanvasState from './canvas.state';
+import Formula from './formula';
+import UnitValue from './unit.value';
+import UnitValuePoint from './unit-value.point';
 import { computeMiddleOfUnitsOnAxe } from './canvas';
-import { CanvasState } from './CanvasState';
 import { convertXToOffsetX, convertYToOffsetY } from './conversion';
-import { Formula } from './Formula';
 import { getPointsToDrawFromFormulas } from './formulas';
-import { UnitValue } from './UnitValue';
-import { UnitValuePoint } from './UnitValuePoint';
 
 export function drawDefaultMark(
   canvasState: CanvasState,
   center: UnitValuePoint,
   context: CanvasRenderingContext2D
-) {
+): void {
   const canvasWidth = canvasState.width;
   const canvasHeight = canvasState.height;
   const isMinXOutsideCanvas = center.x.value - canvasWidth.value / 2 < 0;
@@ -86,7 +86,7 @@ export async function draw(
   canvasState: CanvasState,
   center: UnitValuePoint,
   formulas: Array<Formula>
-) {
+): Promise<void> {
   const [, pointsToDraw] = await Promise.all([
     new Promise<void>((resolve) => {
       context.clearRect(
