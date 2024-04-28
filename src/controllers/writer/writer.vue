@@ -34,6 +34,7 @@
           }"
           v-model="formula.content"
           placeholder="Formula"
+          @keyup="onFormulaUpdated"
         ></textarea>
         <button
           class="delete is-medium"
@@ -52,14 +53,18 @@
 </template>
 
 <script lang="ts">
-import { Formula } from '../../domain';
-
-import WriterVueState from './writer.vue.state';
+import {
+  CalculusTreeFactory,
+  Formula,
+  ImpossibleOperationError,
+} from '../../domain';
+import { WriterVueState } from './WriterVueState';
 
 export default {
   data() {
     return {
       formulas: new Array<Formula>(),
+      errorMessages: {},
       menuState: undefined,
       createFormula: undefined,
       removeFormula: undefined,
@@ -70,6 +75,15 @@ export default {
     onSubmit(event: SubmitEvent) {
       event.preventDefault();
       !!this.submit && this.submit();
+    },
+    onFormulaUpdated() {
+      this.formulas.forEach((formula, index) => {
+        const { right } = CalculusTreeFactory.fromFormula(formula);
+        if (!!right && right instanceof ImpossibleOperationError) {
+          this.errorMessages[index] = 'Error';
+        }
+        console.log(this.errorMessages);
+      });
     },
   },
 };

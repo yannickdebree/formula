@@ -3,8 +3,8 @@ type ClassProvider<T = any, C = unknown> = {
   useClass: C;
 };
 
-export function isClassProvider(provider: Provider): boolean {
-  return !!(provider as any)['useClass'];
+export function isClassProvider(provider: Provider) {
+  return provider.hasOwnProperty('useClass');
 }
 
 type ValueProvider<T = any, V = unknown> = {
@@ -12,8 +12,8 @@ type ValueProvider<T = any, V = unknown> = {
   useValue: V;
 };
 
-export function isValueProvider(provider: Provider): boolean {
-  return !!(provider as any)['useValue'];
+export function isValueProvider(provider: Provider) {
+  return provider.hasOwnProperty('useValue');
 }
 
 export type Provider = ClassProvider | ValueProvider;
