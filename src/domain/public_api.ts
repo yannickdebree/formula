@@ -1,21 +1,10 @@
-import CanvasState from './canvas.state';
-import Formula from './formula';
-import PixelValue from './pixel.value';
-import Ratio from './ratio';
-import UnitValue from './unit.value';
-import UnitValuePoint from './unit-value.point';
-import { findNextFormulaName } from './formulas';
-import Context2DNotAvailableError from './errors/context-2d-not-available.error';
-import { draw } from './drawing';
-
-export {
-    Formula,
-    CanvasState,
-    PixelValue,
-    Ratio,
-    UnitValue,
-    Context2DNotAvailableError,
-    UnitValuePoint,
-    findNextFormulaName,
-    draw
-};
+export { CalculusTreeFactory } from './CalculusTreeFactory';
+export { CanvasState } from './CanvasState';
+export { draw, drawDefaultMark } from './drawing';
+export { Context2DNotAvailableError, ImpossibleOperationError } from './errors';
+export { Formula } from './Formula';
+export { findNextFormulaName } from './formulas';
+export { PixelValue } from './PixelValue';
+export { Ratio } from './Ratio';
+export { UnitValue } from './UnitValue';
+export { UnitValuePoint } from './UnitValuePoint';
